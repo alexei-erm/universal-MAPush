@@ -41,7 +41,8 @@ class BaseTask():
         self.gym = gymapi.acquire_gym()
 
         self.sim_params = sim_params
-        self.sim_params.physx.max_gpu_contact_pairs *= 5
+        # Reduced from *5 to *1 to avoid CUDA OOM on 8GB VRAM GPUs (segfault fix)
+        self.sim_params.physx.max_gpu_contact_pairs *= 1
         self.physics_engine = physics_engine
         self.sim_device = sim_device
         sim_device_type, self.sim_device_id = gymutil.parse_device_str(self.sim_device)

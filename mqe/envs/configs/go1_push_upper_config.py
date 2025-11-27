@@ -12,7 +12,7 @@ class Go1PushUpperCfg(Go1Cfg):
         num_npcs = 3 + num_obs
         episode_length_s = 160
         hie = True
-        record_video = True
+        record_video = False  # Set to True only for testing/visualization
 
     # config of the robot 
     class asset(Go1Cfg.asset):
@@ -87,7 +87,7 @@ class Go1PushUpperCfg(Go1Cfg):
     # velocity control
     class control(Go1Cfg.control):
         control_type = 'C'
-        command_network_path = "./resources/command_nets/1.2x1.2.pt"
+        command_network_path = "{LEGGED_GYM_ROOT_DIR}/resources/command_nets/1.2x1.2.pt"
 
     # termination conditions
     class termination(Go1Cfg.termination):

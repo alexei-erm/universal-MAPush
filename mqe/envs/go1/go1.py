@@ -362,8 +362,9 @@ class Go1(LeggedRobotField):
         self.lag_buffer = [torch.zeros_like(self.dof_pos, device=self.device) for i in range(self.cfg.domain_rand.lag_timesteps + 1)]
 
         if self.cfg.control.control_type == "actuator_net" or self.cfg.control.control_type == "C":
-
-            actuator_network = torch.jit.load(self.cfg.control.actuator_network_path + "/unitree_go1.pt", map_location=self.device)
+            from mqe import LEGGED_GYM_ROOT_DIR
+            actuator_path = self.cfg.control.actuator_network_path.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
+            actuator_network = torch.jit.load(actuator_path + "/unitree_go1.pt", map_location=self.device)
 
             def eval_actuator_network(joint_pos, joint_pos_last, joint_pos_last_last, joint_vel, joint_vel_last,
                                       joint_vel_last_last):
@@ -392,9 +393,11 @@ class Go1(LeggedRobotField):
         locomotion_obs = self._fill_command_obs()
         self.locomotion_obs = locomotion_obs.repeat([self.num_envs * self.num_agents, 1])
         self.history_locomotion_obs = torch.zeros(self.num_envs * self.num_agents, 2100, dtype=torch.float, device=self.device, requires_grad=False)
-        
-        body = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/body_latest.jit', map_location=self.device)
-        adaptation_module = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/adaptation_module_latest.jit', map_location=self.device)
+
+        from mqe import LEGGED_GYM_ROOT_DIR
+        locomotion_policy_path = self.cfg.control.locomotion_policy_dir.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
+        body = torch.jit.load(locomotion_policy_path + '/body_latest.jit', map_location=self.device)
+        adaptation_module = torch.jit.load(locomotion_policy_path + '/adaptation_module_latest.jit', map_location=self.device)
 
         def policy(obs, info={}):
             with torch.no_grad():

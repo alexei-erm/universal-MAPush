@@ -388,4 +388,48 @@ class Go1PushMidWrapper(EmptyWrapper):
 
         self.last_box_state = deepcopy(box_state)
 
+        # ==================== MAPush Metrics Tracking for TensorBoard ====================
+        # Compute metrics that will be logged to TensorBoard via HARL
+
+        # 1. Success Rate - percentage of environments that reached the target
+        distance_to_target = self.env.dist_calculator.cal_dist(box_state, target_state)
+        success = (distance_to_target < self.cfg.goal.THRESHOLD).float()
+        success_rate = success.mean().cpu().item()
+
+        # 2. Average Distance to Target - how close the box is to target
+        avg_distance_to_target = distance_to_target.mean().cpu().item()
+
+        # 3. Collision Rate - percentage of environments with robots too close
+        collision_count = 0
+        total_pairs = 0
+        collision_threshold = 0.5  # meters - robots closer than this are considered colliding
+        for i in range(self.num_agents):
+            for j in range(i+1, self.num_agents):
+                agent_distance = torch.norm(base_pos[:, i, :2] - base_pos[:, j, :2], dim=1)
+                collision_count += (agent_distance < collision_threshold).sum().cpu().item()
+                total_pairs += self.num_envs
+        collision_rate = collision_count / max(total_pairs, 1)
+
+        # 4. Reward Component Breakdown - average per-step reward from each component
+        # Normalize by step count to get average per-step values
+        step_count = max(self.reward_buffer["step_count"], 1)
+        reward_components = {
+            "distance_to_target": float(self.reward_buffer["distance_to_target_reward"]) / step_count,
+            "approach_to_box": float(self.reward_buffer["approach_to_box_reward"]) / step_count,
+            "collision_punishment": float(self.reward_buffer["collision_punishment"]) / step_count,
+            "reach_target": float(self.reward_buffer["reach_target_reward"]) / step_count,
+            "push_reward": float(self.reward_buffer["push_reward"]) / step_count,
+            "ocb_reward": float(self.reward_buffer["ocb_reward"]) / step_count,
+            "exception_punishment": float(self.reward_buffer["exception_punishment"]) / step_count,
+        }
+
+        # Package metrics into info dict for HARL to log
+        info["mapush_metrics"] = {
+            "success_rate": success_rate,
+            "avg_distance_to_target": avg_distance_to_target,
+            "collision_rate": collision_rate,
+            "reward_components": reward_components,
+        }
+        # ==================== End Metrics Tracking ====================
+
         return obs, reward, termination, info

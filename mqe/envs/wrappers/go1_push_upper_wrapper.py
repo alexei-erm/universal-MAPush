@@ -124,7 +124,9 @@ class Go1PushUpperWrapper(EmptyWrapper):
         self.command_observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(3 + 3 * self.num_agents,), dtype=float)
         self.command_action_space = spaces.Box(low=-1, high=1, shape=(3,), dtype=float)
 
-        self.command_module = torch.load(self.cfg.control.command_network_path, map_location=self.device)
+        from mqe import LEGGED_GYM_ROOT_DIR
+        command_path = self.cfg.control.command_network_path.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
+        self.command_module = torch.load(command_path, map_location=self.device)
 
     def _init_extras(self, obs):
         return
