@@ -23,7 +23,7 @@ if [ $test_mode = False ]; then
     --task go1push_mid \
     --use_tensorboard \
     --checkpoint $current_dir$checkpoint \
-    --headless
+    --headless 
 
     # calculate success rate
     steps=()

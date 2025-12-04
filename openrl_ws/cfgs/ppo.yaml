@@ -7,3 +7,5 @@ use_recurrent_policy: false
 use_joint_action_loss: false
 use_valuenorm: true
 use_adv_normalize: false
+hidden_size: 256  # Size of each hidden layer
+layer_N: 2        # Number of hidden layers (creates [256, 256])

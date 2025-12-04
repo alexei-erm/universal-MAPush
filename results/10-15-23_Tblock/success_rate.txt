@@ -298,3 +298,126 @@ finished time: 11.629599571228027
 collision degree: 0.0
 collaboration degree: 0.22244231402873993
 -----------------------------------------------------
+Importing module 'gym_38' (/home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 1.13.1+cu116
+Device count 1
+/home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+Using /home/gvlab/.cache/torch_extensions/py38_cu116 as PyTorch extensions root...
+Emitting ninja build file /home/gvlab/.cache/torch_extensions/py38_cu116/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+Loading extension module gymtorch...
+Setting seed: 0
+Using LeggedRobotField.__init__, num_obs and num_privileged_obs will be computed instead of assigned.
+record_video False
+---------------------------------------------------------------------------
+Loaded checkpoint from:  /home/gvlab/universal-MAPush/results/10-15-23_Tblock//checkpoints/rl_model_10000000_steps/module.pt
+success rate: 0.013333333656191826
+finished time: 19.85846710205078
+collision degree: 0.0
+collaboration degree: 0.0
+success rate: 0.013333333656191826
+finished time: 19.85846710205078
+collision degree: 0.0
+collaboration degree: 0.0
+-----------------------------------------------------
+Importing module 'gym_38' (/home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 1.13.1+cu116
+Device count 1
+/home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+Using /home/gvlab/.cache/torch_extensions/py38_cu116 as PyTorch extensions root...
+Emitting ninja build file /home/gvlab/.cache/torch_extensions/py38_cu116/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+Loading extension module gymtorch...
+Setting seed: 0
+Using LeggedRobotField.__init__, num_obs and num_privileged_obs will be computed instead of assigned.
+Traceback (most recent call last):
+  File "./openrl_ws/test.py", line 106, in <module>
+    env, _ = make_env(args, custom_cfg(args))
+  File "/home/gvlab/agnostic-MAPush/openrl_ws/utils.py", line 33, in make_env
+    env, env_cfg = make_mqe_env(args.task, args, custom_cfg=custom_cfg)
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/utils.py", line 40, in make_mqe_env
+    env, env_cfg = make_env(env_dict["class"], env_dict["config"], args)
+  File "/home/gvlab/agnostic-MAPush/mqe/utils/helpers.py", line 259, in make_env
+    env = task_class(   cfg=env_cfg,
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/npc/go1_object.py", line 22, in __init__
+    super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/go1/go1.py", line 24, in __init__
+    super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/field/legged_robot_field.py", line 21, in __init__
+    super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/base/legged_robot.py", line 78, in __init__
+    super().__init__(self.cfg, sim_params, physics_engine, sim_device, headless)
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/base/base_task.py", line 92, in __init__
+    self.create_sim()
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/base/legged_robot.py", line 318, in create_sim
+    self._create_terrain()
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/field/legged_robot_field.py", line 365, in _create_terrain
+    self.terrain.add_terrain_to_sim(self.gym, self.sim, self.device)
+  File "/home/gvlab/agnostic-MAPush/mqe/utils/terrain/barrier_track.py", line 544, in add_terrain_to_sim
+    env_origin, track_info = self.add_track_to_sim(
+  File "/home/gvlab/agnostic-MAPush/mqe/utils/terrain/barrier_track.py", line 496, in add_track_to_sim
+    self.add_trimesh_to_sim(track_trimesh,
+  File "/home/gvlab/agnostic-MAPush/mqe/utils/terrain/barrier_track.py", line 409, in add_trimesh_to_sim
+    self.gym.add_triangle_mesh(
+KeyboardInterrupt
+Importing module 'gym_38' (/home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 1.13.1+cu116
+Device count 1
+/home/gvlab/isaac_gym/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+Using /home/gvlab/.cache/torch_extensions/py38_cu116 as PyTorch extensions root...
+Emitting ninja build file /home/gvlab/.cache/torch_extensions/py38_cu116/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+Loading extension module gymtorch...
+Setting seed: 0
+Using LeggedRobotField.__init__, num_obs and num_privileged_obs will be computed instead of assigned.
+record_video False
+Traceback (most recent call last):
+  File "./openrl_ws/test.py", line 107, in <module>
+    net = PPONet(env, device="cuda")  # Create neural network.
+  File "/home/gvlab/miniconda3/envs/mapush/lib/python3.8/site-packages/openrl/modules/common/ppo_net.py", line 67, in __init__
+    env.reset(seed=cfg.seed)
+  File "/home/gvlab/agnostic-MAPush/openrl_ws/utils.py", line 54, in reset
+    obs = self.env.reset()
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/wrappers/go1_push_mid_wrapper.py", line 126, in reset
+    obs_buf = self.env.reset()
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/go1/go1.py", line 149, in reset
+    self.compute_observations()
+  File "/home/gvlab/agnostic-MAPush/mqe/envs/go1/go1.py", line 192, in compute_observations
+    self.obs_buf.base_rpy = torch.stack(get_euler_xyz(self.base_quat), dim=1)
+KeyboardInterrupt

@@ -96,8 +96,8 @@ class Go1PushMidCfg(Go1Cfg):
     # rewards weight setting
     class rewards(Go1Cfg.rewards):
         expanded_ocb_reward = False # if True, the reward will be given based on Circular Arc Interpolation Trajectory
-        class scales:
-            target_reward_scale = 0.00325                
+        class scales: # restored to original values (were multiplied by 10 for testing happo)
+            target_reward_scale = 0.00325
             approach_reward_scale = 0.00075
             collision_punishment_scale = -0.0025
             push_reward_scale = 0.0015
