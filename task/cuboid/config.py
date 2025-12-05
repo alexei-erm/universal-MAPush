@@ -96,6 +96,12 @@ class Go1PushMidCfg(Go1Cfg):
     # rewards weight setting
     class rewards(Go1Cfg.rewards):
         expanded_ocb_reward = False # if True, the reward will be given based on Circular Arc Interpolation Trajectory
+
+        # NEW: Enable per-agent reward mode for HAPPO (prevents freeloading)
+        # Set to False for MAPPO/shared networks (default, backward compatible)
+        # Set to True for HAPPO with share_param=False (separate networks)
+        use_per_agent_rewards = True
+
         class scales: # restored to original values (were multiplied by 10 for testing happo)
             target_reward_scale = 0.00325
             approach_reward_scale = 0.00075
@@ -104,6 +110,11 @@ class Go1PushMidCfg(Go1Cfg):
             ocb_reward_scale = 0.004
             reach_target_reward_scale = 10
             exception_punishment_scale = -5
+
+            # NEW: Per-agent reward thresholds (only used when use_per_agent_rewards=True)
+            push_contact_threshold = 0.5        # Distance to box to claim push credit (m)
+            progress_contribution_radius = 1.5  # Distance to box to claim progress credit (m)
+            positioning_engagement_radius = 2.0 # Distance to get positioning reward (m)
 
     # goal setting
     class goal:

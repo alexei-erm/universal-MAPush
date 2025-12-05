@@ -68,6 +68,9 @@ class Go1PushMidWrapper(EmptyWrapper):
         self.ocb_reward_scale = self.cfg.rewards.scales.ocb_reward_scale
         self.exception_punishment_scale = self.cfg.rewards.scales.exception_punishment_scale
 
+        # NEW: Read per-agent reward mode flag (default False for backward compatibility)
+        self.use_per_agent_rewards = getattr(self.cfg.rewards, "use_per_agent_rewards", False)
+
         self.reward_buffer = {
             "distance_to_target_reward": 0,
             "exception_punishment": 0,
@@ -326,9 +329,21 @@ class Go1PushMidWrapper(EmptyWrapper):
                 self.last_box_state = copy(box_state)
             past_distance = self.env.dist_calculator.cal_dist(self.last_box_state, target_state)
             distance = self.env.dist_calculator.cal_dist(box_state, target_state)
-            distance_reward = self.target_reward_scale * 100 * (2 * (past_distance - distance) - 0.01 * distance)
-            reward[:, :] += distance_reward.unsqueeze(1).repeat(1, self.num_agents)
-            self.reward_buffer["distance_to_target_reward"] += torch.sum(distance_reward).cpu()
+
+            if self.use_per_agent_rewards:
+                # NEW CODE PATH: Per-agent attribution based on contribution
+                box_progress = past_distance - distance
+                progress_reward = self._compute_progress_attribution(
+                    base_pos, box_pos, target_pos, box_progress, distance
+                )
+                for i in range(self.num_agents):
+                    reward[:, i] += progress_reward[:, i]
+                self.reward_buffer["distance_to_target_reward"] += progress_reward.sum().cpu()
+            else:
+                # ORIGINAL CODE PATH: Shared reward (backward compatible)
+                distance_reward = self.target_reward_scale * 100 * (2 * (past_distance - distance) - 0.01 * distance)
+                reward[:, :] += distance_reward.unsqueeze(1).repeat(1, self.num_agents)
+                self.reward_buffer["distance_to_target_reward"] += torch.sum(distance_reward).cpu()
 
         # calculate distance from each robot to box reward
         if self.approach_reward_scale != 0:
@@ -354,10 +369,21 @@ class Go1PushMidWrapper(EmptyWrapper):
 
         # calculate push reward for each agent
         if self.push_reward_scale != 0:
-            push_reward = torch.zeros((self.env.num_envs,), device=self.env.device)
-            push_reward[torch.norm(self.root_states_npc.reshape(self.num_envs, self.num_npcs, -1)[:, 0 , 7:9],dim=1) > 0.1] = self.push_reward_scale
-            reward[:, :] += push_reward.unsqueeze(1).repeat(1, self.num_agents)
-            self.reward_buffer["push_reward"] += torch.sum(push_reward).cpu()
+            if self.use_per_agent_rewards:
+                # NEW CODE PATH: Per-agent push contribution
+                box_velocity = self.root_states_npc.reshape(self.num_envs, self.num_npcs, -1)[:, 0, 7:9]
+                push_contribution = self._compute_push_contribution(
+                    base_pos, box_pos, target_pos, box_velocity
+                )
+                for i in range(self.num_agents):
+                    reward[:, i] += push_contribution[:, i]
+                self.reward_buffer["push_reward"] += push_contribution.sum().cpu()
+            else:
+                # ORIGINAL CODE PATH: Shared reward (backward compatible)
+                push_reward = torch.zeros((self.env.num_envs,), device=self.env.device)
+                push_reward[torch.norm(self.root_states_npc.reshape(self.num_envs, self.num_npcs, -1)[:, 0 , 7:9],dim=1) > 0.1] = self.push_reward_scale
+                reward[:, :] += push_reward.unsqueeze(1).repeat(1, self.num_agents)
+                self.reward_buffer["push_reward"] += torch.sum(push_reward).cpu()
             
         # calculate OCB reward for each agent
         if self.ocb_reward_scale != 0:
@@ -372,19 +398,30 @@ class Go1PushMidWrapper(EmptyWrapper):
                 pass
             else:
                 target_direction = (target_pos[:, :2] - box_pos[:, :2])/(torch.norm((target_pos[:, :2] - box_pos[:, :2]),dim=1,keepdim=True))
-            vertex_list=self.cfg.asset.vertex_list
-            reward_logger=[]
-            for i in range(self.num_agents):
-                gf_pos=base_pos[:, i, :2] - box_pos[:,:2]
-                rotation_matrix=rotation_matrix_2D( - box_rpy[:, 2])
-                box_relative_pos=torch.bmm(rotation_matrix,gf_pos.unsqueeze(2)).squeeze(2)
-                normal_vector=self.calc_normal_vector_for_obc_reward(vertex_list,box_relative_pos)
-                rotation_matrix=rotation_matrix_2D( box_rpy[:, 2])
-                normal_vector=torch.bmm(rotation_matrix,normal_vector.to(rotation_matrix.device).unsqueeze(2)).squeeze(2)
-                ocb_reward = torch.sum( target_direction * normal_vector, dim=1) * self.ocb_reward_scale
-                reward[:, i] += ocb_reward
-                reward_logger.append(torch.sum(ocb_reward).cpu())
-            self.reward_buffer["ocb_reward"] += np.sum(np.array(reward_logger))
+
+            if self.use_per_agent_rewards:
+                # NEW CODE PATH: Improved positioning with engagement check
+                positioning_reward = self._compute_positioning_reward(
+                    base_pos, box_pos, target_pos, box_rpy, target_direction
+                )
+                for i in range(self.num_agents):
+                    reward[:, i] += positioning_reward[:, i]
+                self.reward_buffer["ocb_reward"] += positioning_reward.sum().cpu()
+            else:
+                # ORIGINAL CODE PATH: Standard OCB reward (backward compatible)
+                vertex_list=self.cfg.asset.vertex_list
+                reward_logger=[]
+                for i in range(self.num_agents):
+                    gf_pos=base_pos[:, i, :2] - box_pos[:,:2]
+                    rotation_matrix=rotation_matrix_2D( - box_rpy[:, 2])
+                    box_relative_pos=torch.bmm(rotation_matrix,gf_pos.unsqueeze(2)).squeeze(2)
+                    normal_vector=self.calc_normal_vector_for_obc_reward(vertex_list,box_relative_pos)
+                    rotation_matrix=rotation_matrix_2D( box_rpy[:, 2])
+                    normal_vector=torch.bmm(rotation_matrix,normal_vector.to(rotation_matrix.device).unsqueeze(2)).squeeze(2)
+                    ocb_reward = torch.sum( target_direction * normal_vector, dim=1) * self.ocb_reward_scale
+                    reward[:, i] += ocb_reward
+                    reward_logger.append(torch.sum(ocb_reward).cpu())
+                self.reward_buffer["ocb_reward"] += np.sum(np.array(reward_logger))
 
         self.last_box_state = deepcopy(box_state)
 
@@ -438,3 +475,145 @@ class Go1PushMidWrapper(EmptyWrapper):
         # ==================== End Metrics Tracking ====================
 
         return obs, reward, termination, info
+
+    def _compute_progress_attribution(self, base_pos, box_pos, target_pos, box_progress, distance):
+        """Attribute box progress to agents based on proximity and positioning.
+
+        Args:
+            base_pos: (num_envs, num_agents, 3) - agent positions
+            box_pos: (num_envs, 3) - box position
+            target_pos: (num_envs, 3) - target position
+            box_progress: (num_envs,) - distance improvement (positive = closer)
+            distance: (num_envs,) - current distance to target
+
+        Returns:
+            progress_reward: (num_envs, num_agents) - attributed progress per agent
+        """
+        contribution_radius = getattr(self.cfg.rewards.scales, 'progress_contribution_radius', 1.5)
+        progress_reward = torch.zeros((self.env.num_envs, self.num_agents), device=self.env.device)
+
+        # Compute target direction
+        target_direction = target_pos[:, :2] - box_pos[:, :2]
+        target_direction = target_direction / (torch.norm(target_direction, dim=1, keepdim=True) + 1e-6)
+
+        # Compute contribution weights for each agent
+        contribution_weights = torch.zeros((self.env.num_envs, self.num_agents), device=self.env.device)
+
+        for i in range(self.num_agents):
+            # Distance to box
+            agent_to_box = box_pos[:, :2] - base_pos[:, i, :2]
+            distance_to_box = torch.norm(agent_to_box, dim=1)
+
+            # Only consider agents within contribution radius
+            in_range = distance_to_box < contribution_radius
+
+            # Compute positioning alignment
+            agent_direction = agent_to_box / (torch.norm(agent_to_box, dim=1, keepdim=True) + 1e-6)
+            alignment = torch.sum(agent_direction * target_direction, dim=1)
+            alignment = torch.clamp(alignment, min=0.0)  # Only positive contributions
+
+            # Weight by proximity (closer = more contribution)
+            proximity_weight = torch.clamp(1.0 - distance_to_box / contribution_radius, min=0.0, max=1.0)
+
+            # Combine factors
+            weight = alignment * proximity_weight
+            contribution_weights[:, i] = torch.where(in_range, weight, torch.zeros_like(weight))
+
+        # Normalize weights (sum to 1 per environment)
+        total_weight = contribution_weights.sum(dim=1, keepdim=True)
+        total_weight = torch.where(total_weight > 0, total_weight, torch.ones_like(total_weight))
+        contribution_weights = contribution_weights / total_weight
+
+        # Distribute progress reward based on weights
+        scaled_progress = self.target_reward_scale * 100 * (2 * box_progress - 0.01 * distance)
+        for i in range(self.num_agents):
+            progress_reward[:, i] = scaled_progress * contribution_weights[:, i]
+
+        return progress_reward
+
+    def _compute_push_contribution(self, base_pos, box_pos, target_pos, box_velocity):
+        """Compute per-agent push contribution reward.
+
+        Only reward agents that:
+        1. Are in contact with the box (within threshold)
+        2. Are pushing toward the target (alignment > 0)
+
+        Args:
+            base_pos: (num_envs, num_agents, 3) - agent positions
+            box_pos: (num_envs, 3) - box position
+            target_pos: (num_envs, 3) - target position
+            box_velocity: (num_envs, 2) - box velocity xy
+
+        Returns:
+            push_contribution: (num_envs, num_agents) - reward per agent
+        """
+        contact_threshold = getattr(self.cfg.rewards.scales, 'push_contact_threshold', 0.5)
+        push_contribution = torch.zeros((self.env.num_envs, self.num_agents), device=self.env.device)
+
+        for i in range(self.num_agents):
+            # Check if agent is close enough to box
+            agent_to_box = box_pos[:, :2] - base_pos[:, i, :2]
+            distance_to_box = torch.norm(agent_to_box, dim=1)
+            in_contact = distance_to_box < contact_threshold
+
+            # Compute force direction (from agent toward box)
+            force_direction = agent_to_box / (torch.norm(agent_to_box, dim=1, keepdim=True) + 1e-6)
+
+            # Compute target direction (from box toward target)
+            target_direction = target_pos[:, :2] - box_pos[:, :2]
+            target_direction = target_direction / (torch.norm(target_direction, dim=1, keepdim=True) + 1e-6)
+
+            # Reward alignment between force and target direction
+            alignment = torch.sum(force_direction * target_direction, dim=1)
+
+            # Only reward positive alignment (pushing toward target)
+            box_speed = torch.norm(box_velocity, dim=1)
+            contribution = alignment * box_speed * self.push_reward_scale
+            contribution = torch.clamp(contribution, min=0.0)  # Only positive contributions
+
+            # Apply only if in contact
+            push_contribution[:, i] = torch.where(in_contact, contribution, torch.zeros_like(contribution))
+
+        return push_contribution
+
+    def _compute_positioning_reward(self, base_pos, box_pos, target_pos, box_rpy, target_direction):
+        """Improved positioning reward that only rewards engaged agents.
+
+        Args:
+            base_pos: (num_envs, num_agents, 3) - agent positions
+            box_pos: (num_envs, 3) - box position
+            target_pos: (num_envs, 3) - target position
+            box_rpy: (num_envs, 3) - box orientation
+            target_direction: (num_envs, 2) - direction from box to target
+
+        Returns:
+            positioning_reward: (num_envs, num_agents) - reward per agent
+        """
+        engagement_radius = getattr(self.cfg.rewards.scales, 'positioning_engagement_radius', 2.0)
+        positioning_reward = torch.zeros((self.env.num_envs, self.num_agents), device=self.env.device)
+
+        # Use existing OCB calculation but add engagement check
+        vertex_list = self.cfg.asset.vertex_list
+
+        for i in range(self.num_agents):
+            # Check if agent is engaged (near box)
+            distance_to_box = torch.norm(base_pos[:, i, :2] - box_pos[:, :2], dim=1)
+            is_engaged = distance_to_box < engagement_radius
+
+            # Compute OCB reward (existing logic)
+            gf_pos = base_pos[:, i, :2] - box_pos[:, :2]
+            rotation_matrix = rotation_matrix_2D(-box_rpy[:, 2])
+            box_relative_pos = torch.bmm(rotation_matrix, gf_pos.unsqueeze(2)).squeeze(2)
+            normal_vector = self.calc_normal_vector_for_obc_reward(vertex_list, box_relative_pos)
+            rotation_matrix = rotation_matrix_2D(box_rpy[:, 2])
+            normal_vector = torch.bmm(rotation_matrix, normal_vector.to(rotation_matrix.device).unsqueeze(2)).squeeze(2)
+            ocb_reward = torch.sum(target_direction * normal_vector, dim=1) * self.ocb_reward_scale
+
+            # Add proximity bonus
+            proximity_bonus = torch.clamp(1.0 - distance_to_box / engagement_radius, min=0.0, max=1.0)
+
+            # Only apply if engaged
+            final_reward = ocb_reward * proximity_bonus
+            positioning_reward[:, i] = torch.where(is_engaged, final_reward, torch.zeros_like(final_reward))
+
+        return positioning_reward
