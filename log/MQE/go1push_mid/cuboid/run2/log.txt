@@ -1,0 +1,664 @@
+2025-12-04 15:02:23,362 [INFO] Episode: 0/1000
+2025-12-04 15:02:54,462 [INFO] 
+	average_step_reward: -0.01900755986571312
+	distance_to_target_reward: -0.007301523815840483
+	exception_punishment: -0.00175
+	approach_to_box_reward: -0.004725507926940918
+	collision_punishment: -0.005462985627651215
+	reach_target_reward: 0.0
+	push_reward: 1.6260024494840764e-05
+	ocb_reward: 0.00021619814429432155
+
+2025-12-04 15:02:54,471 [INFO] 
+	value_loss: 0.514967069029808
+	policy_loss: -0.0008403718413319439
+	dist_entropy: 4.2632890224456785
+	actor_grad_norm: 0.08331425487995148
+	critic_grad_norm: 3.5389091968536377
+	ratio: 0.9999418973922729
+
+2025-12-04 15:02:54,473 [INFO] Episode: 1/1000
+2025-12-04 15:03:21,568 [INFO] Episode: 2/1000
+2025-12-04 15:03:46,918 [INFO] Episode: 3/1000
+2025-12-04 15:04:10,849 [INFO] Episode: 4/1000
+2025-12-04 15:04:33,480 [INFO] Episode: 5/1000
+2025-12-04 15:05:03,933 [INFO] 
+	average_step_reward: -0.018887296319007874
+	distance_to_target_reward: -0.007338835392147303
+	exception_punishment: -0.0015
+	approach_to_box_reward: -0.004881439871788025
+	collision_punishment: -0.005046156318187714
+	reach_target_reward: 0.0
+	push_reward: 1.6725025488995016e-05
+	ocb_reward: -0.00013759024269878865
+
+2025-12-04 15:05:03,939 [INFO] 
+	value_loss: 0.16012915149331092
+	policy_loss: -0.0005864372931085882
+	dist_entropy: 4.324466133117676
+	actor_grad_norm: 0.06624995917081833
+	critic_grad_norm: 1.3513826131820679
+	ratio: 0.9999850332736969
+
+2025-12-04 15:05:03,942 [INFO] Episode: 6/1000
+2025-12-04 15:05:30,643 [INFO] Episode: 7/1000
+2025-12-04 15:05:55,694 [INFO] Episode: 8/1000
+2025-12-04 15:06:19,324 [INFO] Episode: 9/1000
+2025-12-04 15:06:41,955 [INFO] Episode: 10/1000
+2025-12-04 15:07:12,330 [INFO] 
+	average_step_reward: -0.019118916243314743
+	distance_to_target_reward: -0.007344793062657118
+	exception_punishment: -0.0016
+	approach_to_box_reward: -0.004983353977203369
+	collision_punishment: -0.005342155073881149
+	reach_target_reward: 0.0
+	push_reward: 1.4295020264398772e-05
+	ocb_reward: 0.00013708975803107022
+
+2025-12-04 15:07:12,335 [INFO] 
+	value_loss: 0.1317434050142765
+	policy_loss: -0.0008280980854124209
+	dist_entropy: 4.380058240890503
+	actor_grad_norm: 0.08539833873510361
+	critic_grad_norm: 0.49465370178222656
+	ratio: 0.9999818563461303
+
+2025-12-04 15:07:12,339 [INFO] Episode: 11/1000
+2025-12-04 15:07:39,611 [INFO] Episode: 12/1000
+2025-12-04 15:08:04,699 [INFO] Episode: 13/1000
+2025-12-04 15:08:28,594 [INFO] Episode: 14/1000
+2025-12-04 15:08:51,246 [INFO] Episode: 15/1000
+2025-12-04 15:09:20,827 [INFO] 
+	average_step_reward: -0.01899888925254345
+	distance_to_target_reward: -0.007228437345474958
+	exception_punishment: -0.0017
+	approach_to_box_reward: -0.005242009909152984
+	collision_punishment: -0.005072804268598557
+	reach_target_reward: 0.0
+	push_reward: 1.396502284478629e-05
+	ocb_reward: 0.00023039775684475898
+
+2025-12-04 15:09:20,832 [INFO] 
+	value_loss: 0.1438123345375061
+	policy_loss: -0.0011028454533377641
+	dist_entropy: 4.428369426727295
+	actor_grad_norm: 0.10539136081933975
+	critic_grad_norm: 0.4001486897468567
+	ratio: 1.0000479519367218
+
+2025-12-04 15:09:20,836 [INFO] Episode: 16/1000
+2025-12-04 15:09:46,098 [INFO] Episode: 17/1000
+2025-12-04 15:10:09,310 [INFO] Episode: 18/1000
+2025-12-04 15:10:30,850 [INFO] Episode: 19/1000
+2025-12-04 15:10:51,616 [INFO] Episode: 20/1000
+2025-12-04 15:11:20,617 [INFO] 
+	average_step_reward: -0.019469214603304863
+	distance_to_target_reward: -0.007294634822756052
+	exception_punishment: -0.00175
+	approach_to_box_reward: -0.00561760085105896
+	collision_punishment: -0.004945228147506714
+	reach_target_reward: 0.0
+	push_reward: 1.3770017176284455e-05
+	ocb_reward: 0.0001244781527388841
+
+2025-12-04 15:11:20,623 [INFO] 
+	value_loss: 0.1539389058947563
+	policy_loss: -0.0006653822091870154
+	dist_entropy: 4.4947713851928714
+	actor_grad_norm: 0.06602541357278824
+	critic_grad_norm: 0.48613831400871277
+	ratio: 0.9999909639358521
+
+2025-12-04 15:11:20,625 [INFO] Episode: 21/1000
+2025-12-04 15:11:44,792 [INFO] Episode: 22/1000
+2025-12-04 15:12:06,962 [INFO] Episode: 23/1000
+2025-12-04 15:12:27,994 [INFO] Episode: 24/1000
+2025-12-04 15:12:47,996 [INFO] Episode: 25/1000
+2025-12-04 15:13:16,005 [INFO] 
+	average_step_reward: -0.019282830879092216
+	distance_to_target_reward: -0.007190289907157421
+	exception_punishment: -0.0016
+	approach_to_box_reward: -0.006058734011650085
+	collision_punishment: -0.00455396826505661
+	reach_target_reward: 0.0
+	push_reward: 1.4760028534510639e-05
+	ocb_reward: 0.00010540124168619513
+
+2025-12-04 15:13:16,011 [INFO] 
+	value_loss: 0.1573419988155365
+	policy_loss: -0.0006716141418657174
+	dist_entropy: 4.547746849060059
+	actor_grad_norm: 0.08013644814491272
+	critic_grad_norm: 0.6818767189979553
+	ratio: 0.9999371111392975
+
+2025-12-04 15:13:16,013 [INFO] Episode: 26/1000
+2025-12-04 15:13:39,988 [INFO] Episode: 27/1000
+2025-12-04 15:14:01,587 [INFO] Episode: 28/1000
+2025-12-04 15:14:21,947 [INFO] Episode: 29/1000
+2025-12-04 15:14:41,560 [INFO] Episode: 30/1000
+2025-12-04 15:15:09,496 [INFO] 
+	average_step_reward: -0.01983225718140602
+	distance_to_target_reward: -0.007271516136825085
+	exception_punishment: -0.0019
+	approach_to_box_reward: -0.006472226512432099
+	collision_punishment: -0.004368158037662506
+	reach_target_reward: 0.0
+	push_reward: 1.3215017133916263e-05
+	ocb_reward: 0.00016642782375216484
+
+2025-12-04 15:15:09,501 [INFO] 
+	value_loss: 0.1591176301240921
+	policy_loss: -0.0005838840075139018
+	dist_entropy: 4.590221261978149
+	actor_grad_norm: 0.07067124545574188
+	critic_grad_norm: 0.7889474630355835
+	ratio: 1.0000597894191743
+
+2025-12-04 15:15:09,505 [INFO] Episode: 31/1000
+2025-12-04 15:15:32,838 [INFO] Episode: 32/1000
+2025-12-04 15:15:54,570 [INFO] Episode: 33/1000
+2025-12-04 15:16:14,829 [INFO] Episode: 34/1000
+2025-12-04 15:16:34,338 [INFO] Episode: 35/1000
+2025-12-04 15:17:02,322 [INFO] 
+	average_step_reward: -0.01988229900598526
+	distance_to_target_reward: -0.0072576855309307575
+	exception_punishment: -0.00195
+	approach_to_box_reward: -0.006397505841255188
+	collision_punishment: -0.004582455372810363
+	reach_target_reward: 0.0
+	push_reward: 1.4235021808417514e-05
+	ocb_reward: 0.0002911133871972561
+
+2025-12-04 15:17:02,328 [INFO] 
+	value_loss: 0.1641673982143402
+	policy_loss: -0.0007610461205356245
+	dist_entropy: 4.643593454360962
+	actor_grad_norm: 0.09996017813682556
+	critic_grad_norm: 0.9208949208259583
+	ratio: 1.000016099214554
+
+2025-12-04 15:17:02,331 [INFO] Episode: 36/1000
+2025-12-04 15:17:26,638 [INFO] Episode: 37/1000
+2025-12-04 15:17:48,924 [INFO] Episode: 38/1000
+2025-12-04 15:18:10,068 [INFO] Episode: 39/1000
+2025-12-04 15:18:30,011 [INFO] Episode: 40/1000
+2025-12-04 15:18:57,583 [INFO] 
+	average_step_reward: -0.019496001303195953
+	distance_to_target_reward: -0.00721721863374114
+	exception_punishment: -0.0013
+	approach_to_box_reward: -0.006786188025474548
+	collision_punishment: -0.00459454080760479
+	reach_target_reward: 0.0
+	push_reward: 1.4355026905832347e-05
+	ocb_reward: 0.0003875906813330948
+
+2025-12-04 15:18:57,589 [INFO] 
+	value_loss: 0.17432164549827575
+	policy_loss: -0.0006747210539060688
+	dist_entropy: 4.694944524765015
+	actor_grad_norm: 0.07756679505109787
+	critic_grad_norm: 0.9983614087104797
+	ratio: 0.9999344944953918
+
+2025-12-04 15:18:57,591 [INFO] Episode: 41/1000
+2025-12-04 15:19:21,439 [INFO] Episode: 42/1000
+2025-12-04 15:19:43,351 [INFO] Episode: 43/1000
+2025-12-04 15:20:04,367 [INFO] Episode: 44/1000
+2025-12-04 15:20:24,613 [INFO] Episode: 45/1000
+2025-12-04 15:20:51,874 [INFO] 
+	average_step_reward: -0.020113788545131683
+	distance_to_target_reward: -0.0071866693906486034
+	exception_punishment: -0.00165
+	approach_to_box_reward: -0.007557770483493805
+	collision_punishment: -0.0043935520094633106
+	reach_target_reward: 0.0
+	push_reward: 2.227501681772992e-05
+	ocb_reward: 0.0006519275745749474
+
+2025-12-04 15:20:51,880 [INFO] 
+	value_loss: 0.21457409709692002
+	policy_loss: -0.0007126572706503964
+	dist_entropy: 4.745952939987182
+	actor_grad_norm: 0.0898021012544632
+	critic_grad_norm: 1.2645068168640137
+	ratio: 0.9999695897102356
+
+2025-12-04 15:20:51,883 [INFO] Episode: 46/1000
+2025-12-04 15:21:15,005 [INFO] Episode: 47/1000
+2025-12-04 15:21:36,487 [INFO] Episode: 48/1000
+2025-12-04 15:21:57,361 [INFO] Episode: 49/1000
+2025-12-04 15:22:17,565 [INFO] Episode: 50/1000
+2025-12-04 15:22:45,179 [INFO] 
+	average_step_reward: -0.020443692803382874
+	distance_to_target_reward: -0.007370559498667717
+	exception_punishment: -0.00185
+	approach_to_box_reward: -0.007520319592952728
+	collision_punishment: -0.004409442581534385
+	reach_target_reward: 0.0
+	push_reward: 2.131501241819933e-05
+	ocb_reward: 0.0006853133942186832
+
+2025-12-04 15:22:45,184 [INFO] 
+	value_loss: 0.2389998570084572
+	policy_loss: 0.000253006834679681
+	dist_entropy: 4.799206352233886
+	actor_grad_norm: 0.20943622291088104
+	critic_grad_norm: 1.2487120628356934
+	ratio: 0.9999183177947998
+
+2025-12-04 15:22:45,186 [INFO] Episode: 51/1000
+2025-12-04 15:23:08,520 [INFO] Episode: 52/1000
+2025-12-04 15:23:30,169 [INFO] Episode: 53/1000
+2025-12-04 15:23:50,852 [INFO] Episode: 54/1000
+2025-12-04 15:24:10,534 [INFO] Episode: 55/1000
+2025-12-04 15:24:37,625 [INFO] 
+	average_step_reward: -0.019811369478702545
+	distance_to_target_reward: -0.007299796678125858
+	exception_punishment: -0.00135
+	approach_to_box_reward: -0.007755955843925476
+	collision_punishment: -0.004243101492524147
+	reach_target_reward: 0.0
+	push_reward: 2.0130024495301768e-05
+	ocb_reward: 0.0008173550409078598
+
+2025-12-04 15:24:37,631 [INFO] 
+	value_loss: 0.25238868296146394
+	policy_loss: -0.0006100716634463765
+	dist_entropy: 4.847857713699341
+	actor_grad_norm: 0.06929490715265274
+	critic_grad_norm: 1.0508053302764893
+	ratio: 0.9998702704906464
+
+2025-12-04 15:24:37,634 [INFO] Episode: 56/1000
+2025-12-04 15:25:01,392 [INFO] Episode: 57/1000
+2025-12-04 15:25:22,976 [INFO] Episode: 58/1000
+2025-12-04 15:25:43,444 [INFO] Episode: 59/1000
+2025-12-04 15:26:03,470 [INFO] Episode: 60/1000
+2025-12-04 15:26:31,065 [INFO] 
+	average_step_reward: -0.02045212872326374
+	distance_to_target_reward: -0.007435956038534641
+	exception_punishment: -0.00175
+	approach_to_box_reward: -0.007747180759906769
+	collision_punishment: -0.004275772391557693
+	reach_target_reward: 0.0
+	push_reward: 2.4840011974447407e-05
+	ocb_reward: 0.0007319401760026812
+
+2025-12-04 15:26:31,070 [INFO] 
+	value_loss: 0.250333371758461
+	policy_loss: -0.0005399481631343406
+	dist_entropy: 4.912575197219849
+	actor_grad_norm: 0.0435832254588604
+	critic_grad_norm: 0.9976641535758972
+	ratio: 0.9999437272548676
+
+2025-12-04 15:26:31,073 [INFO] Episode: 61/1000
+2025-12-04 15:26:55,003 [INFO] Episode: 62/1000
+2025-12-04 15:27:17,277 [INFO] Episode: 63/1000
+2025-12-04 15:27:38,261 [INFO] Episode: 64/1000
+2025-12-04 15:27:58,556 [INFO] Episode: 65/1000
+2025-12-04 15:28:25,862 [INFO] 
+	average_step_reward: -0.02078882046043873
+	distance_to_target_reward: -0.007480014115571976
+	exception_punishment: -0.002
+	approach_to_box_reward: -0.008136289551258087
+	collision_punishment: -0.004110899800062179
+	reach_target_reward: 0.0
+	push_reward: 3.2339998142560944e-05
+	ocb_reward: 0.0009060446436703205
+
+2025-12-04 15:28:25,868 [INFO] 
+	value_loss: 0.2486632540822029
+	policy_loss: -0.0006577321964361005
+	dist_entropy: 4.97565770149231
+	actor_grad_norm: 0.07138583809137344
+	critic_grad_norm: 0.9690846800804138
+	ratio: 1.0000052154064178
+
+2025-12-04 15:28:25,870 [INFO] Episode: 66/1000
+2025-12-04 15:28:49,991 [INFO] Episode: 67/1000
+2025-12-04 15:29:12,564 [INFO] Episode: 68/1000
+2025-12-04 15:29:34,089 [INFO] Episode: 69/1000
+2025-12-04 15:29:54,763 [INFO] Episode: 70/1000
+2025-12-04 15:30:22,232 [INFO] 
+	average_step_reward: -0.02030068077147007
+	distance_to_target_reward: -0.007387952413409948
+	exception_punishment: -0.00195
+	approach_to_box_reward: -0.0074476019501686095
+	collision_punishment: -0.004428047897815705
+	reach_target_reward: 0.0
+	push_reward: 2.7900012355530635e-05
+	ocb_reward: 0.0008850209878385067
+
+2025-12-04 15:30:22,238 [INFO] 
+	value_loss: 0.24954115450382233
+	policy_loss: -0.0005093995361761472
+	dist_entropy: 5.02963547706604
+	actor_grad_norm: 0.051955658942461014
+	critic_grad_norm: 0.9282451868057251
+	ratio: 0.9999599874019622
+
+2025-12-04 15:30:22,240 [INFO] Episode: 71/1000
+2025-12-04 15:30:46,971 [INFO] Episode: 72/1000
+2025-12-04 15:31:09,908 [INFO] Episode: 73/1000
+2025-12-04 15:31:32,259 [INFO] Episode: 74/1000
+2025-12-04 15:31:54,138 [INFO] Episode: 75/1000
+2025-12-04 15:32:22,674 [INFO] 
+	average_step_reward: -0.018662475049495697
+	distance_to_target_reward: -0.007307942491024733
+	exception_punishment: -0.0014
+	approach_to_box_reward: -0.006454048533439637
+	collision_punishment: -0.004585988477468491
+	reach_target_reward: 0.0
+	push_reward: 3.1305014999816194e-05
+	ocb_reward: 0.0010541995069384576
+
+2025-12-04 15:32:22,680 [INFO] 
+	value_loss: 0.225372713804245
+	policy_loss: -0.0005864389397558512
+	dist_entropy: 5.094715595245361
+	actor_grad_norm: 0.061536580324172974
+	critic_grad_norm: 1.06853187084198
+	ratio: 0.9999603986740112
+
+2025-12-04 15:32:22,683 [INFO] Episode: 76/1000
+2025-12-04 15:32:48,547 [INFO] Episode: 77/1000
+2025-12-04 15:33:13,447 [INFO] Episode: 78/1000
+2025-12-04 15:33:37,291 [INFO] Episode: 79/1000
+2025-12-04 15:34:00,527 [INFO] Episode: 80/1000
+2025-12-04 15:34:29,183 [INFO] 
+	average_step_reward: -0.01826445572078228
+	distance_to_target_reward: -0.007356842514127493
+	exception_punishment: -0.0016
+	approach_to_box_reward: -0.005985146276950837
+	collision_punishment: -0.004570990519523621
+	reach_target_reward: 0.0
+	push_reward: 3.401999128982425e-05
+	ocb_reward: 0.001214504947066307
+
+2025-12-04 15:34:29,188 [INFO] 
+	value_loss: 0.21423897743225098
+	policy_loss: -0.00031710931835036147
+	dist_entropy: 5.143799734115601
+	actor_grad_norm: 0.14698021113872528
+	critic_grad_norm: 1.172059178352356
+	ratio: 0.9999636471271515
+
+2025-12-04 15:34:29,191 [INFO] Episode: 81/1000
+2025-12-04 15:34:55,933 [INFO] Episode: 82/1000
+2025-12-04 15:35:21,365 [INFO] Episode: 83/1000
+2025-12-04 15:35:46,073 [INFO] Episode: 84/1000
+2025-12-04 15:36:10,262 [INFO] Episode: 85/1000
+2025-12-04 15:36:39,280 [INFO] 
+	average_step_reward: -0.01790124922990799
+	distance_to_target_reward: -0.007436974905431271
+	exception_punishment: -0.00145
+	approach_to_box_reward: -0.005716581828594208
+	collision_punishment: -0.00435287030339241
+	reach_target_reward: 0.0
+	push_reward: 3.61949932994321e-05
+	ocb_reward: 0.001018983362019062
+
+2025-12-04 15:36:39,284 [INFO] 
+	value_loss: 0.19683529287576676
+	policy_loss: -0.0005364016166112151
+	dist_entropy: 5.195541906356811
+	actor_grad_norm: 0.0531618706882
+	critic_grad_norm: 1.0353164672851562
+	ratio: 0.999948388338089
+
+2025-12-04 15:36:39,288 [INFO] Episode: 86/1000
+2025-12-04 15:37:06,368 [INFO] Episode: 87/1000
+2025-12-04 15:37:32,141 [INFO] Episode: 88/1000
+2025-12-04 15:37:57,182 [INFO] Episode: 89/1000
+2025-12-04 15:38:21,769 [INFO] Episode: 90/1000
+2025-12-04 15:38:51,720 [INFO] 
+	average_step_reward: -0.018401140347123146
+	distance_to_target_reward: -0.0075182560831308365
+	exception_punishment: -0.0017
+	approach_to_box_reward: -0.005465381054878235
+	collision_punishment: -0.004744226039648056
+	reach_target_reward: 0.0
+	push_reward: 6.949499947950244e-05
+	ocb_reward: 0.0009572271354496479
+
+2025-12-04 15:38:51,724 [INFO] 
+	value_loss: 0.2089864879846573
+	policy_loss: -0.0007359206039410538
+	dist_entropy: 5.2559295177459715
+	actor_grad_norm: 0.07382868975400925
+	critic_grad_norm: 0.9565758109092712
+	ratio: 1.0000230312347411
+
+2025-12-04 15:38:51,727 [INFO] Episode: 91/1000
+2025-12-04 15:39:20,001 [INFO] Episode: 92/1000
+2025-12-04 15:39:46,040 [INFO] Episode: 93/1000
+2025-12-04 15:40:10,893 [INFO] Episode: 94/1000
+2025-12-04 15:40:34,783 [INFO] Episode: 95/1000
+2025-12-04 15:41:03,925 [INFO] 
+	average_step_reward: -0.01886148564517498
+	distance_to_target_reward: -0.007488258183002472
+	exception_punishment: -0.0023
+	approach_to_box_reward: -0.00560645632982254
+	collision_punishment: -0.004696365284919739
+	reach_target_reward: 0.0
+	push_reward: 5.903999772272073e-05
+	ocb_reward: 0.0011705538423359395
+
+2025-12-04 15:41:03,929 [INFO] 
+	value_loss: 0.19819334745407105
+	policy_loss: -0.0008238340613715422
+	dist_entropy: 5.308145141601562
+	actor_grad_norm: 0.07362650334835052
+	critic_grad_norm: 0.8642303347587585
+	ratio: 0.9999814569950104
+
+2025-12-04 15:41:03,933 [INFO] Episode: 96/1000
+2025-12-04 15:41:31,929 [INFO] Episode: 97/1000
+2025-12-04 15:41:58,317 [INFO] Episode: 98/1000
+2025-12-04 15:42:23,600 [INFO] Episode: 99/1000
+2025-12-04 15:42:48,012 [INFO] Episode: 100/1000
+2025-12-04 15:43:16,842 [INFO] 
+	average_step_reward: -0.01841452158987522
+	distance_to_target_reward: -0.0074216765351593494
+	exception_punishment: -0.00215
+	approach_to_box_reward: -0.005744705600738525
+	collision_punishment: -0.004494756079912185
+	reach_target_reward: 0.0001
+	push_reward: 6.0149999626446515e-05
+	ocb_reward: 0.001236466531008482
+
+2025-12-04 15:43:16,848 [INFO] 
+	value_loss: 0.215983746945858
+	policy_loss: -0.0007868331681464725
+	dist_entropy: 5.363319683074951
+	actor_grad_norm: 0.08315300941467285
+	critic_grad_norm: 0.8956046104431152
+	ratio: 1.00008887052536
+
+2025-12-04 15:43:16,850 [INFO] Episode: 101/1000
+2025-12-04 15:43:44,349 [INFO] Episode: 102/1000
+2025-12-04 15:44:09,914 [INFO] Episode: 103/1000
+2025-12-04 15:44:34,744 [INFO] Episode: 104/1000
+2025-12-04 15:44:59,229 [INFO] Episode: 105/1000
+2025-12-04 15:45:27,885 [INFO] 
+	average_step_reward: -0.01766146346926689
+	distance_to_target_reward: -0.007264737505465746
+	exception_punishment: -0.0014
+	approach_to_box_reward: -0.005986162555217743
+	collision_punishment: -0.004529142102003098
+	reach_target_reward: 0.0
+	push_reward: 5.854498886037618e-05
+	ocb_reward: 0.0014600347408652305
+
+2025-12-04 15:45:27,889 [INFO] 
+	value_loss: 0.17393421977758408
+	policy_loss: -0.0006895462452454981
+	dist_entropy: 5.422697591781616
+	actor_grad_norm: 0.06145241856575012
+	critic_grad_norm: 0.910247802734375
+	ratio: 1.0000392138957976
+
+2025-12-04 15:45:27,892 [INFO] Episode: 106/1000
+2025-12-04 15:45:54,960 [INFO] Episode: 107/1000
+2025-12-04 15:46:20,987 [INFO] Episode: 108/1000
+2025-12-04 15:46:45,725 [INFO] Episode: 109/1000
+2025-12-04 15:47:10,118 [INFO] Episode: 110/1000
+2025-12-04 15:47:38,435 [INFO] 
+	average_step_reward: -0.01828129030764103
+	distance_to_target_reward: -0.007263364735990763
+	exception_punishment: -0.0017
+	approach_to_box_reward: -0.006462173228263855
+	collision_punishment: -0.004332589308023453
+	reach_target_reward: 0.0
+	push_reward: 5.737498213420622e-05
+	ocb_reward: 0.0014194620770215988
+
+2025-12-04 15:47:38,441 [INFO] 
+	value_loss: 0.1909722864627838
+	policy_loss: -0.0007174597540938521
+	dist_entropy: 5.474994468688965
+	actor_grad_norm: 0.05992089584469795
+	critic_grad_norm: 0.8987248539924622
+	ratio: 0.9999452829360962
+
+2025-12-04 15:47:38,444 [INFO] Episode: 111/1000
+2025-12-04 15:48:05,126 [INFO] Episode: 112/1000
+2025-12-04 15:48:30,815 [INFO] Episode: 113/1000
+2025-12-04 15:48:56,062 [INFO] Episode: 114/1000
+2025-12-04 15:49:21,448 [INFO] Episode: 115/1000
+2025-12-04 15:49:49,864 [INFO] 
+	average_step_reward: -0.018238551914691925
+	distance_to_target_reward: -0.007228903006762266
+	exception_punishment: -0.0017
+	approach_to_box_reward: -0.006497264332771301
+	collision_punishment: -0.004487878366708755
+	reach_target_reward: 0.0
+	push_reward: 9.589496767148376e-05
+	ocb_reward: 0.0015795995366573335
+
+2025-12-04 15:49:49,870 [INFO] 
+	value_loss: 0.18341770768165588
+	policy_loss: -0.0009136528286745715
+	dist_entropy: 5.5311743259429935
+	actor_grad_norm: 0.07016632705926895
+	critic_grad_norm: 0.8903884887695312
+	ratio: 0.9999607563018799
+
+2025-12-04 15:49:49,874 [INFO] Episode: 116/1000
+2025-12-04 15:50:16,884 [INFO] Episode: 117/1000
+2025-12-04 15:50:43,168 [INFO] Episode: 118/1000
+2025-12-04 15:51:09,329 [INFO] Episode: 119/1000
+2025-12-04 15:51:35,348 [INFO] Episode: 120/1000
+2025-12-04 15:52:04,789 [INFO] 
+	average_step_reward: -0.016569824889302254
+	distance_to_target_reward: -0.007355114910751581
+	exception_punishment: -0.00115
+	approach_to_box_reward: -0.006005568351745605
+	collision_punishment: -0.004523794833421707
+	reach_target_reward: 0.0005
+	push_reward: 0.00012904498726129532
+	ocb_reward: 0.0018356089645624161
+
+2025-12-04 15:52:04,794 [INFO] 
+	value_loss: 0.2953637331724167
+	policy_loss: -0.0006692306244927337
+	dist_entropy: 5.582693099975586
+	actor_grad_norm: 0.06859021633863449
+	critic_grad_norm: 0.9384406208992004
+	ratio: 0.9999856650829315
+
+2025-12-04 15:52:04,797 [INFO] Episode: 121/1000
+2025-12-04 15:52:33,426 [INFO] Episode: 122/1000
+2025-12-04 15:53:00,937 [INFO] Episode: 123/1000
+2025-12-04 15:53:28,085 [INFO] Episode: 124/1000
+2025-12-04 15:53:55,002 [INFO] Episode: 125/1000
+2025-12-04 15:54:24,429 [INFO] 
+	average_step_reward: -0.016141872853040695
+	distance_to_target_reward: -0.007257268764078617
+	exception_punishment: -0.00155
+	approach_to_box_reward: -0.006057652244567871
+	collision_punishment: -0.004445181930065155
+	reach_target_reward: 0.0009
+	push_reward: 0.00014994002413004637
+	ocb_reward: 0.0021182917672395705
+
+2025-12-04 15:54:24,434 [INFO] 
+	value_loss: 0.35726791620254517
+	policy_loss: -0.000813499467090395
+	dist_entropy: 5.639638662338257
+	actor_grad_norm: 0.0564124658703804
+	critic_grad_norm: 1.0573259592056274
+	ratio: 0.9999629557132721
+
+2025-12-04 15:54:24,437 [INFO] Episode: 126/1000
+2025-12-04 15:54:52,360 [INFO] Episode: 127/1000
+2025-12-04 15:55:19,675 [INFO] Episode: 128/1000
+2025-12-04 15:55:46,857 [INFO] Episode: 129/1000
+2025-12-04 15:56:14,198 [INFO] Episode: 130/1000
+2025-12-04 15:56:43,600 [INFO] 
+	average_step_reward: -0.016855549067258835
+	distance_to_target_reward: -0.007192917633801699
+	exception_punishment: -0.0015
+	approach_to_box_reward: -0.00607851188659668
+	collision_punishment: -0.004292291125059128
+	reach_target_reward: 0.0002
+	push_reward: 0.000172575018950738
+	ocb_reward: 0.0018355951771140099
+
+2025-12-04 15:56:43,606 [INFO] 
+	value_loss: 0.20797677785158158
+	policy_loss: -0.0006417093796720508
+	dist_entropy: 5.687592363357544
+	actor_grad_norm: 0.10853028297424316
+	critic_grad_norm: 0.798303484916687
+	ratio: 0.999957549571991
+
+2025-12-04 15:56:43,608 [INFO] Episode: 131/1000
+2025-12-04 15:57:12,135 [INFO] Episode: 132/1000
+2025-12-04 15:57:42,364 [INFO] Episode: 133/1000
+2025-12-04 15:58:12,785 [INFO] Episode: 134/1000
+2025-12-04 15:58:42,834 [INFO] Episode: 135/1000
+2025-12-04 15:59:13,096 [INFO] 
+	average_step_reward: -0.016319848597049713
+	distance_to_target_reward: -0.007151488680392504
+	exception_punishment: -0.0017
+	approach_to_box_reward: -0.005890063016414642
+	collision_punishment: -0.004552371029853821
+	reach_target_reward: 0.0009
+	push_reward: 0.0001626599841983989
+	ocb_reward: 0.0019114150542020797
+
+2025-12-04 15:59:13,101 [INFO] 
+	value_loss: 0.32468012571334837
+	policy_loss: -0.0009643012364236592
+	dist_entropy: 5.745936155319214
+	actor_grad_norm: 0.0651518926024437
+	critic_grad_norm: 1.1780385971069336
+	ratio: 1.00000319480896
+
+2025-12-04 15:59:13,105 [INFO] Episode: 136/1000
+2025-12-04 15:59:41,754 [INFO] Episode: 137/1000
+2025-12-04 16:00:10,114 [INFO] Episode: 138/1000
+2025-12-04 16:00:38,166 [INFO] Episode: 139/1000
+2025-12-04 16:01:06,088 [INFO] Episode: 140/1000
+2025-12-04 16:01:35,894 [INFO] 
+	average_step_reward: -0.015985632315278053
+	distance_to_target_reward: -0.007186282891780138
+	exception_punishment: -0.00145
+	approach_to_box_reward: -0.0053697470808029175
+	collision_punishment: -0.004516953775882721
+	reach_target_reward: 0.0006
+	push_reward: 0.0002118150150636211
+	ocb_reward: 0.001725536334514618
+
+2025-12-04 16:01:35,899 [INFO] 
+	value_loss: 0.2625027775764465
+	policy_loss: -0.0010628709801935089
+	dist_entropy: 5.799358224868774
+	actor_grad_norm: 0.0881027802824974
+	critic_grad_norm: 0.9030693173408508
+	ratio: 1.0000421226024627
+
+2025-12-04 16:01:35,902 [INFO] Episode: 141/1000

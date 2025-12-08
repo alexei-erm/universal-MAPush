@@ -96,43 +96,14 @@ class Go1PushMidCfg(Go1Cfg):
     # rewards weight setting
     class rewards(Go1Cfg.rewards):
         expanded_ocb_reward = False # if True, the reward will be given based on Circular Arc Interpolation Trajectory
-
-        # NEW: Enable per-agent reward mode for HAPPO (prevents freeloading)
-        # Set to False for MAPPO/shared networks (default, backward compatible)
-        # Set to True for HAPPO with share_param=False (separate networks)
-        use_per_agent_rewards = True
-
         class scales: # restored to original values (were multiplied by 10 for testing happo)
-            # Shared reward scales (used when use_per_agent_rewards=False)
             target_reward_scale = 0.00325
-            approach_reward_scale = 0.00075  # Original value
+            approach_reward_scale = 0.00075
             collision_punishment_scale = -0.0025
-            push_reward_scale = 0.0015  # Original value
+            push_reward_scale = 0.0015
             ocb_reward_scale = 0.004
-            reach_target_reward_scale = 2.0  # ITERATION 5: REDUCED from 10.0 to prevent reward hacking
+            reach_target_reward_scale = 10
             exception_punishment_scale = -5
-
-            # Per-agent reward scales (only used when use_per_agent_rewards=True)
-            # These override the shared scales above when flag=True
-            per_agent_approach_reward_scale = 0.0  # ITERATION 2: DISABLED (shared was 0.00075)
-            per_agent_push_reward_scale = 0.15     # ITERATION 8: AMPLIFIED 50X (was 0.003 in Iter5) - MUST DOMINATE!
-            engagement_bonus_scale = 0.02          # ITERATION 7: RESTORED (was 0.0 in Iter6) - ESSENTIAL!
-            cooperation_bonus_scale = 0.01         # ITERATION 7: RESTORED (was 0.0 in Iter6) - ESSENTIAL!
-            directional_progress_scale = 0.05      # ITERATION 11: REDUCED (was 0.15) - less freeloading risk
-
-            # Per-agent reward thresholds (only used when use_per_agent_rewards=True)
-            push_contact_threshold = 1.0        # ITERATION 2: RELAXED (was 0.5m)
-            progress_contribution_radius = 1.5  # Distance to box to claim progress credit (m)
-            positioning_engagement_radius = 1.5 # ITERATION 9: TIGHTENED (was 2.0m)
-            engagement_bonus_radius = 1.5       # ITERATION 9: TIGHTENED (was 2.0m)
-            cooperation_radius = 2.0            # ITERATION 3: Radius to check for cooperation bonus (m)
-
-            # ITERATION 9: Anti-blocking rewards (NEW)
-            blocking_penalty_scale = 0.05       # Penalty for being between box and goal
-            blocking_radius = 2.0               # Distance from box to check for blocking
-            blocking_alignment_threshold = 0.3  # Alignment threshold to consider blocking (0.3 = ~70 degrees)
-            same_side_bonus_scale = 0.02        # Bonus when both agents on push side
-            same_side_alignment_threshold = -0.3  # Must be behind box (negative alignment)
 
     # goal setting
     class goal:
