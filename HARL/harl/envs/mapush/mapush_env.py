@@ -27,22 +27,42 @@ class MAPushEnv:
             sys.path.insert(0, str(mapush_root))
 
         # Import MAPush environment (lazy import to avoid unnecessary dependencies)
-        from task.cuboid.config import Go1PushMidCfg
-        from mqe.envs.wrappers.go1_push_mid_wrapper import Go1PushMidWrapper
-        from mqe.envs.go1.go1_env import Go1Env
+        from mqe.envs.utils import make_mqe_env
+        from argparse import Namespace
+        from isaacgym import gymapi
 
-        # Create environment configuration
-        self.cfg = Go1PushMidCfg()
+        # Create mock Isaac Gym args object
+        gym_args = Namespace(
+            sim_device='cuda:0',
+            pipeline='gpu',
+            graphics_device_id=0,
+            physics_engine=gymapi.SIM_PHYSX,  # Use gymapi constant
+            num_threads=0,
+            subscenes=0,
+            slices=0,
+            use_gpu=True,
+            use_gpu_pipeline=True,
+            device='cuda:0',
+            task=args.get('task', 'go1push_mid'),
+            resume=False,
+            experiment_name='harl',
+            run_name='harl_run',
+            load_run=-1,
+            checkpoint=-1,
+            headless=args.get('headless', True),
+            horovod=False,
+            rl_device='cuda:0',
+            num_envs=args.get('n_threads', 20),
+            seed=1,
+            max_iterations=0,
+            record_video=False
+        )
 
-        # Override config with args
-        if 'headless' in args:
-            self.cfg.env.headless = args['headless']
-        if 'n_threads' in args:
-            self.cfg.env.num_envs = args['n_threads']
+        # Get task name from args or use default
+        task_name = args.get('task', 'go1push_mid')
 
-        # Create base environment and wrap it
-        base_env = Go1Env(self.cfg)
-        self.env = Go1PushMidWrapper(base_env)
+        # Create environment using MAPush's make_mqe_env function
+        self.env, self.cfg = make_mqe_env(task_name, gym_args)
 
         # Get environment properties
         self.n_threads = self.cfg.env.num_envs
@@ -67,36 +87,33 @@ class MAPushEnv:
         obs = self.env.reset()
 
         # obs shape from wrapper: [n_envs, n_agents, obs_dim]
-        # Convert to numpy and split by agent
+        # Convert to numpy
         if isinstance(obs, torch.Tensor):
             obs = obs.cpu().numpy()
 
-        # HARL expects: list of [n_envs, obs_dim] arrays (one per agent)
-        obs_list = [obs[:, i, :] for i in range(self.n_agents)]
-
+        # HARL expects numpy arrays of shape [n_envs, n_agents, obs_dim]
         # For MAPush, shared observation is same as local observation
-        share_obs_list = obs_list
+        share_obs = obs.copy()
 
-        return obs_list, share_obs_list, self.get_avail_actions()
+        return obs, share_obs, self.get_avail_actions()
 
     def step(self, actions):
         """Execute one step for all agents.
 
         Args:
-            actions: List of action arrays [n_agents, n_envs, action_dim]
+            actions: Actions array [n_envs, n_agents, action_dim]
 
         Returns:
-            obs: Local observations
-            share_obs: Shared observations
-            rewards: Rewards for each agent
-            dones: Done flags
-            infos: Info dictionaries
+            obs: Local observations [n_envs, n_agents, obs_dim]
+            share_obs: Shared observations [n_envs, n_agents, obs_dim]
+            rewards: Rewards for each agent [n_envs, n_agents, 1]
+            dones: Done flags [n_envs, n_agents]
+            infos: Info dictionaries [n_envs]
             available_actions: None for continuous
         """
-        # actions is list of [n_envs, action_dim] arrays (one per agent)
-        # Convert to [n_envs, n_agents, action_dim] tensor
-        actions_array = np.stack(actions, axis=1)  # [n_envs, n_agents, action_dim]
-        actions_tensor = torch.from_numpy(actions_array).to(self.env.device)
+        # actions is [n_envs, n_agents, action_dim]
+        # Convert to tensor
+        actions_tensor = torch.from_numpy(actions).to(self.env.device)
 
         # Step environment
         obs, rewards, dones, infos = self.env.step(actions_tensor)
@@ -109,23 +126,33 @@ class MAPushEnv:
         if isinstance(dones, torch.Tensor):
             dones = dones.cpu().numpy()
 
-        # Split by agent
-        # obs: [n_envs, n_agents, obs_dim] -> list of [n_envs, obs_dim]
-        obs_list = [obs[:, i, :] for i in range(self.n_agents)]
-        share_obs_list = obs_list
+        # HARL expects:
+        # obs: [n_envs, n_agents, obs_dim]
+        # rewards: [n_envs, n_agents, 1]
+        # dones: [n_envs, n_agents]
+        share_obs = obs.copy()
 
-        # rewards: [n_envs, n_agents] -> list of [n_envs, 1]
-        rewards_list = [rewards[:, i:i+1] for i in range(self.n_agents)]
+        # Reshape rewards to [n_envs, n_agents, 1] if needed
+        if rewards.ndim == 2:
+            rewards = rewards[:, :, np.newaxis]
 
-        # dones: [n_envs] -> expand to [n_envs] for each agent
-        # All agents done at same time in MAPush
-        dones_list = [dones for _ in range(self.n_agents)]
+        # Expand dones to [n_envs, n_agents] if it's [n_envs]
+        if dones.ndim == 1:
+            dones = np.tile(dones[:, np.newaxis], (1, self.n_agents))
 
-        # infos: single dict -> list of dicts (one per agent)
-        infos_list = [infos for _ in range(self.n_agents)]
+        # infos: HARL expects [n_envs] list, where each element is:
+        # - EP state_type: a dict with agent info in keys like 0, 1, etc.
+        # - FP state_type: a list of dicts (one per agent)
+        # MAPush returns a single dict, so we create list of dicts for each env
+        # For EP mode, create dict with agent indices as keys
+        infos_list = []
+        for env_idx in range(self.n_threads):
+            env_info = {}
+            for agent_id in range(self.n_agents):
+                env_info[agent_id] = {}  # Empty dict for each agent
+            infos_list.append(env_info)
 
-        return (obs_list, share_obs_list, rewards_list, dones_list,
-                infos_list, self.get_avail_actions())
+        return (obs, share_obs, rewards, dones, infos_list, self.get_avail_actions())
 
     def get_avail_actions(self):
         """Get available actions (None for continuous action space)."""

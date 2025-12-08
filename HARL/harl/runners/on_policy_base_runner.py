@@ -449,7 +449,7 @@ class OnPolicyBaseRunner:
                 masks[:, agent_id],
                 active_masks[:, agent_id],
                 available_actions[:, agent_id]
-                if available_actions[0] is not None
+                if available_actions is not None and available_actions[0] is not None
                 else None,
             )
 

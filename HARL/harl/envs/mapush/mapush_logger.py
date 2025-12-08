@@ -16,7 +16,7 @@ class MAPushLogger(BaseLogger):
 
     def get_task_name(self):
         """Get the task name for logging."""
-        return self.args["task"]
+        return self.env_args.get("task", "cuboid_go1push_mid")
 
     def eval_init(self):
         """Initialize evaluation metrics."""
@@ -76,7 +76,7 @@ class MAPushLogger(BaseLogger):
     def train_log(self, actor_train_infos, critic_train_info, actor_buffer, critic_buffer):
         """Log training metrics."""
         # Get total steps
-        self.total_num_steps = actor_buffer.step * self.args["num_envs"] * self.args["episode_length"]
+        self.total_num_steps = actor_buffer.step * self.algo_args["train"]["n_rollout_threads"] * self.algo_args["train"]["episode_length"]
 
         # Log actor training info (if available)
         if len(actor_train_infos) > 0 and actor_train_infos[0] is not None:
