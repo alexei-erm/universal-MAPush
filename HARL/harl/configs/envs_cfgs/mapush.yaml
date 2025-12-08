@@ -1,0 +1,10 @@
+# MAPush environment configuration for HARL
+
+env_args:
+  task: "cuboid_go1push_mid"  # MAPush task name
+  headless: True              # Run without rendering during training
+  n_threads: 100              # Number of parallel environments (Isaac Gym)
+
+# These are the main parameters you might want to tune:
+# - n_threads: More environments = faster training but more GPU memory
+# - headless: Set to False only for debugging/visualization

@@ -52,6 +52,10 @@ def make_train_env(env_name, seed, n_threads, env_args):
         from harl.envs.dexhands.dexhands_env import DexHandsEnv
 
         return DexHandsEnv({"n_threads": n_threads, **env_args})
+    elif env_name == "mapush":
+        from harl.envs.mapush.mapush_env import MAPushEnv
+
+        return MAPushEnv({"n_threads": n_threads, **env_args})
 
     def get_env_fn(rank):
         def init_env():
@@ -219,6 +223,14 @@ def make_render_env(env_name, seed, env_args):
 
         env = LAGEnv(env_args)
         env.seed(seed * 60000)
+    elif env_name == "mapush":
+        from harl.envs.mapush.mapush_env import MAPushEnv
+
+        env = MAPushEnv({"n_threads": 64, "headless": False, **env_args})
+        manual_render = False  # mapush renders automatically
+        manual_expand_dims = False  # mapush uses parallel envs
+        manual_delay = False
+        env_num = 64
     else:
         print("Can not support the " + env_name + "environment.")
         raise NotImplementedError
@@ -256,4 +268,6 @@ def get_num_agents(env, env_args, envs):
     elif env == "dexhands":
         return envs.n_agents
     elif env == "lag":
+        return envs.n_agents
+    elif env == "mapush":
         return envs.n_agents
