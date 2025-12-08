@@ -46,7 +46,9 @@ class OnPolicyBaseRunner:
         self.fixed_order = algo_args["algo"]["fixed_order"]
         set_seed(algo_args["seed"])
         self.device = init_device(algo_args["device"])
-        if not self.algo_args["render"]["use_render"]:  # train, not render
+        # Only init directories for training mode (not calc or render)
+        use_calc_mode = self.algo_args["render"].get("use_calc_mode", False)
+        if not self.algo_args["render"]["use_render"] and not use_calc_mode:  # train mode only
             self.run_dir, self.log_dir, self.save_dir, self.writter = init_dir(
                 args["env"],
                 env_args,
@@ -56,6 +58,12 @@ class OnPolicyBaseRunner:
                 logger_path=algo_args["logger"]["log_dir"],
             )
             save_config(args, algo_args, env_args, self.run_dir)
+        else:
+            # In calc or render mode, don't create directories
+            self.run_dir = None
+            self.log_dir = None
+            self.save_dir = None
+            self.writter = None
         # set the title of the process
         setproctitle.setproctitle(
             str(args["algo"]) + "-" + str(args["env"]) + "-" + str(args["exp_name"])

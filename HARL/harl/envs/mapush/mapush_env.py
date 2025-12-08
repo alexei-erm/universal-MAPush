@@ -1,4 +1,7 @@
 """MAPush Environment Wrapper for HARL."""
+import sys
+import os
+from pathlib import Path
 import numpy as np
 import torch
 
@@ -16,6 +19,12 @@ class MAPushEnv:
                 - n_threads: number of parallel environments
         """
         self.args = args
+
+        # Add universal-MAPush directory to Python path
+        # HARL is in universal-MAPush/HARL, so go up 3 levels
+        mapush_root = Path(__file__).parent.parent.parent.parent.parent
+        if str(mapush_root) not in sys.path:
+            sys.path.insert(0, str(mapush_root))
 
         # Import MAPush environment (lazy import to avoid unnecessary dependencies)
         from task.cuboid.config import Go1PushMidCfg
