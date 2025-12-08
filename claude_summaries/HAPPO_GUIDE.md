@@ -50,37 +50,115 @@ python examples/train.py --algo happo --env mapush --exp_name quick_test --n_rol
 
 ## 🎯 Training Commands
 
-### Quick Test (5 min)
+**Note**: Most settings are configured in YAML files. Only specify `--exp_name` on command line.
+
+### Basic Training (Recommended)
 ```bash
 conda activate mapush
 cd HARL
-python examples/train.py --algo happo --env mapush --exp_name quick_test \
-    --n_rollout_threads 5 --num_env_steps 1000000
+python examples/train.py --algo happo --env mapush --exp_name my_experiment
 ```
 
-### Full Training (8-12 hours)
+Settings come from:
+- Algorithm: `harl/configs/algos_cfgs/happo.yaml`
+- Environment: `harl/configs/envs_cfgs/mapush.yaml`
+- Task/Rewards: `task/cuboid/config.py`
+
+### Override Specific Parameters (Optional)
 ```bash
-conda activate mapush
-cd HARL
-python examples/train.py --algo happo --env mapush --exp_name full_run \
-    --n_rollout_threads 10 --num_env_steps 50000000
+# Change number of parallel environments
+python examples/train.py --algo happo --env mapush --exp_name test \
+    --n_rollout_threads 500
+
+# Change total training steps
+python examples/train.py --algo happo --env mapush --exp_name long_run \
+    --num_env_steps 100000000
+
+# Change learning rate
+python examples/train.py --algo happo --env mapush --exp_name lr_test \
+    --lr 0.005
 ```
 
-### Different Objects
+### Different Objects (Optional)
 ```bash
-# Cylinder
-python examples/train.py --algo happo --env mapush --exp_name cylinder --object_type cylinder
-
-# T-block
-python examples/train.py --algo happo --env mapush --exp_name tblock --object_type Tblock
+# Default is cuboid (from mapush.yaml)
+python examples/train.py --algo happo --env mapush --exp_name cylinder_test --object_type cylinder
+python examples/train.py --algo happo --env mapush --exp_name tblock_test --object_type Tblock
 ```
 
-### Other Algorithms
+### Other Algorithms (Optional)
 ```bash
-# Try HATRPO or MAPPO
 python examples/train.py --algo hatrpo --env mapush --exp_name test_hatrpo
 python examples/train.py --algo mappo --env mapush --exp_name test_mappo
 ```
+
+---
+
+## 🧪 Testing Trained Models
+
+**Note**: Use `test.py` for all evaluation (not `train.py`). Settings come from YAML configs.
+
+### Calculator Mode - Evaluate Performance
+
+**Single checkpoint (basic):**
+```bash
+cd HARL
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./results/mapush/cuboid_go1push_mid/happo/my_experiment/models/80M
+```
+
+**All checkpoints (recommended):**
+```bash
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./results/mapush/cuboid_go1push_mid/happo/my_experiment/models \
+    --test_all_checkpoints True
+```
+
+**Output**: Single file `calc_results_all_checkpoints.txt` with table:
+```
+Checkpoint   Success Rate    Finished Time   Collision    Collaboration
+--------------------------------------------------------------------------------
+10M          45.23%              15.34s         0.0156          0.7234
+20M          68.91%              13.12s         0.0089          0.8145
+...
+100M         94.12%               9.45s         0.0012          0.9456
+```
+
+**Optional parameters:**
+```bash
+# Use different number of environments (default: 300 from happo.yaml)
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./path/to/models --test_all_checkpoints True \
+    --calc_n_threads 500
+```
+
+### Viewer Mode - Visualize Policy
+
+**Basic visualization:**
+```bash
+cd HARL
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./results/mapush/cuboid_go1push_mid/happo/my_experiment/models/80M \
+    --mode render \
+    --headless False
+```
+
+**Optional parameters:**
+```bash
+# Change number of episodes to render (default: 10 from happo.yaml)
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./path/to/checkpoint \
+    --mode render \
+    --headless False \
+    --render_episodes 5
+```
+
+### Test Modes Summary
+
+| Mode | Purpose | Output | Command |
+|------|---------|--------|---------|
+| **calc** (default) | Compute metrics | Text file with table | `--mode calc` (or omit) |
+| **render** | Visualize policy | Isaac Gym viewer | `--mode render --headless False` |
 
 ---
 
@@ -362,25 +440,58 @@ Both work independently!
 ```bash
 # Activate environment
 conda activate mapush
-
-# Quick test (5 min)
 cd HARL
-python examples/train.py --algo happo --env mapush --exp_name test --n_rollout_threads 5 --num_env_steps 1000000
 
-# Full training (8-12 hours)
-python examples/train.py --algo happo --env mapush --exp_name full_run --n_rollout_threads 10 --num_env_steps 50000000
+# Train (settings from YAML configs)
+python examples/train.py --algo happo --env mapush --exp_name my_experiment
+
+# Test single checkpoint
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./results/mapush/cuboid_go1push_mid/happo/my_experiment/models/80M
+
+# Test all checkpoints (recommended)
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./results/mapush/cuboid_go1push_mid/happo/my_experiment/models \
+    --test_all_checkpoints True
+
+# Visualize policy
+python examples/test.py --algo happo --env mapush \
+    --model_dir ./results/mapush/.../models/80M \
+    --mode render --headless False
 
 # Monitor with TensorBoard
-tensorboard --logdir HARL/results/mapush/cuboid_go1push_mid/happo/
+tensorboard --logdir ./results/mapush/
+```
 
-# Train with different object
-python examples/train.py --algo happo --env mapush --exp_name cylinder_test --object_type cylinder
+### **File Structure**
+
+```
+HARL/
+├── examples/
+│   ├── train.py           # Training only
+│   └── test.py            # Testing/evaluation (calc + viewer modes)
+├── harl/configs/
+│   ├── algos_cfgs/
+│   │   └── happo.yaml     # Algorithm settings (lr, network, etc.)
+│   └── envs_cfgs/
+│       └── mapush.yaml    # Environment settings (object type, etc.)
+└── results/
+    └── mapush/.../
+        ├── models/
+        │   ├── 10M/       # Checkpoints saved every 10M steps
+        │   ├── 20M/
+        │   └── ...
+        └── calc_results_all_checkpoints.txt  # Test results
+
+task/cuboid/config.py      # Task settings (REWARDS, physics, randomization)
 ```
 
 ### **Remember**
-1. **Three config levels**: `happo.yaml` (algorithm) → `mapush.yaml` (env) → `task/<object>/config.py` (rewards/physics)
-2. **Task config is key**: Most task tuning happens in `task/<object>/config.py`
-3. **CLI overrides**: Use `--parameter value` to override any YAML setting
-4. **Metrics are logged**: Success rate, distance, collisions, and reward breakdowns all in TensorBoard
+1. **train.py** for training, **test.py** for evaluation
+2. **Three config levels**: `happo.yaml` (algorithm) → `mapush.yaml` (env) → `task/<object>/config.py` (rewards/physics)
+3. **Task config is key**: Most task tuning happens in `task/<object>/config.py`
+4. **Minimal CLI usage**: Only specify `--exp_name` and `--model_dir`, rest comes from configs
+5. **Checkpoints auto-saved**: Every 10M steps to `models/10M/`, `models/20M/`, etc.
+6. **Test all at once**: `--test_all_checkpoints True` generates single results table
 
 **You're ready to go!** 🎉
