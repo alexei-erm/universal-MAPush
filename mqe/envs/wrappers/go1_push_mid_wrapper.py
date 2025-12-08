@@ -63,12 +63,6 @@ class Go1PushMidWrapper(EmptyWrapper):
         # NEW: Read per-agent reward mode flag (default False for backward compatibility)
         self.use_per_agent_rewards = getattr(self.cfg.rewards, "use_per_agent_rewards", False)
 
-        # ITERATION 11: Validation prints
-        print(f"\n{'='*80}")
-        print(f"[ITERATION 11 - REDUCED SHARED REWARD]")
-        print(f"{'='*80}")
-        print(f"use_per_agent_rewards:    {self.use_per_agent_rewards}")
-
         # Select reward scales based on mode (flag-dependent for backward compatibility)
         if self.use_per_agent_rewards:
             # ITERATION 2: Use per-agent scales (modified values)
@@ -85,27 +79,6 @@ class Go1PushMidWrapper(EmptyWrapper):
         self.collision_punishment_scale = self.cfg.rewards.scales.collision_punishment_scale
         self.ocb_reward_scale = self.cfg.rewards.scales.ocb_reward_scale
         self.exception_punishment_scale = self.cfg.rewards.scales.exception_punishment_scale
-
-        # ITERATION 10: Print reward scales for verification
-        print(f"push_reward_scale:        {self.push_reward_scale}")
-        print(f"reach_target_scale:       {self.reach_target_reward_scale}")
-        if self.use_per_agent_rewards:
-            engagement = getattr(self.cfg.rewards.scales, 'engagement_bonus_scale', 'NOT_FOUND')
-            cooperation = getattr(self.cfg.rewards.scales, 'cooperation_bonus_scale', 'NOT_FOUND')
-            blocking = getattr(self.cfg.rewards.scales, 'blocking_penalty_scale', 'NOT_FOUND')
-            same_side = getattr(self.cfg.rewards.scales, 'same_side_bonus_scale', 'NOT_FOUND')
-            directional = getattr(self.cfg.rewards.scales, 'directional_progress_scale', 'NOT_FOUND')
-            print(f"engagement_bonus_scale:   {engagement}")
-            print(f"cooperation_bonus_scale:  {cooperation}")
-            print(f"blocking_penalty_scale:   {blocking}")
-            print(f"same_side_bonus_scale:    {same_side}")
-            print(f"directional_progress:     {directional}  ← REDUCED from 0.15 to reduce freeloading")
-            print()
-            print("ITERATION 11: Reduced shared reward")
-            print("  Iter10 SUCCESS: Both agents push toward goal!")
-            print("  Iter11 tweak: directional_progress 0.15 → 0.05 (less freeloading risk)")
-            print("  Per-agent push (0.15) now 3X stronger than shared (0.05)")
-        print(f"{'='*80}\n")
 
         # ITERATION 5: Track previous box position for directional progress
         self.prev_box_pos = None
@@ -508,13 +481,7 @@ class Go1PushMidWrapper(EmptyWrapper):
             self.reward_buffer["blocking_penalty"] += blocking_penalty.sum().cpu()
             self.reward_buffer["same_side_bonus"] += same_side_bonus.sum().cpu()
 
-            # ITERATION 9: Debug logging (print every 100 steps for env 0 only)
-            if hasattr(self.env, 'episode_length_buf') and self.env.episode_length_buf[0] % 100 == 0 and self.env.episode_length_buf[0] > 0:
-                print(f"[Env 0, Step {self.env.episode_length_buf[0].item():4d}] "
-                      f"Engage: {engagement_bonus[0].mean().item():.4f}, "
-                      f"Coop: {cooperation_bonus[0].mean().item():.4f}, "
-                      f"Block: {blocking_penalty[0].mean().item():.4f}, "
-                      f"SameSide: {same_side_bonus[0].mean().item():.4f}")
+            # ITERATION 9: Debug logging removed
 
         self.last_box_state = deepcopy(box_state)
 
