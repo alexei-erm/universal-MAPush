@@ -55,8 +55,28 @@ class Categorical(nn.Module):
         return FixedCategorical(logits=x)
 
 
+class AddBias(nn.Module):
+    """Add learnable bias (used for log_std in DiagGaussian)."""
+    def __init__(self, bias):
+        super(AddBias, self).__init__()
+        self._bias = nn.Parameter(bias.unsqueeze(1))
+
+    def forward(self, x):
+        if x.dim() == 2:
+            bias = self._bias.t().view(1, -1)
+        else:
+            bias = self._bias.t().view(1, -1, 1, 1)
+        return x + bias
+
+
 class DiagGaussian(nn.Module):
-    """A linear layer followed by a Diagonal Gaussian distribution."""
+    """A linear layer followed by a Diagonal Gaussian distribution.
+
+    Replicates OpenRL's implementation for MAPush compatibility:
+    - Log std is a learnable parameter initialized to 0 (std = exp(0) = 1.0)
+    - State-independent std (same for all observations)
+    - No sigmoid clamping, allowing std to be learned freely
+    """
 
     def __init__(
         self,
@@ -73,17 +93,13 @@ class DiagGaussian(nn.Module):
         def init_(m):
             return init(m, init_method, lambda x: nn.init.constant_(x, 0), gain)
 
-        if args is not None:
-            self.std_x_coef = args["std_x_coef"]
-            self.std_y_coef = args["std_y_coef"]
-        else:
-            self.std_x_coef = 1.0
-            self.std_y_coef = 0.5
         self.fc_mean = init_(nn.Linear(num_inputs, num_outputs))
-        log_std = torch.ones(num_outputs) * self.std_x_coef
-        self.log_std = torch.nn.Parameter(log_std)
+        # Initialize log_std to 0 (std = exp(0) = 1.0), matching OpenRL
+        self.logstd = AddBias(torch.zeros(num_outputs))
 
     def forward(self, x, available_actions=None):
         action_mean = self.fc_mean(x)
-        action_std = torch.sigmoid(self.log_std / self.std_x_coef) * self.std_y_coef
-        return FixedNormal(action_mean, action_std)
+        # Use zeros to make log_std state-independent (same for all observations)
+        zeros = torch.zeros_like(action_mean)
+        action_logstd = self.logstd(zeros)
+        return FixedNormal(action_mean, action_logstd.exp())

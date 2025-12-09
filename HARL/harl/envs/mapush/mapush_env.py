@@ -146,6 +146,9 @@ class MAPushEnv:
         if rewards.ndim == 2:
             rewards = rewards[:, :, np.newaxis]
 
+        # Keep original dones for info tracking before expanding
+        dones_per_env = dones if dones.ndim == 1 else dones[:, 0]
+
         # Expand dones to [n_envs, n_agents] if it's [n_envs]
         if dones.ndim == 1:
             dones = np.tile(dones[:, np.newaxis], (1, self.n_agents))
@@ -160,6 +163,11 @@ class MAPushEnv:
             env_info = {}
             for agent_id in range(self.n_agents):
                 env_info[agent_id] = {}  # Empty dict for each agent
+
+            # Add finished_buf for success rate tracking (only when episode is done)
+            if dones_per_env[env_idx] and hasattr(self.env, 'init_finished_buf'):
+                env_info['finished_buf'] = self.env.init_finished_buf[env_idx].item()
+
             infos_list.append(env_info)
 
         return (obs, share_obs, rewards, dones, infos_list, self.get_avail_actions())

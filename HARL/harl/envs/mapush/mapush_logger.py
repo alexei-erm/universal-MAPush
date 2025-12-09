@@ -22,6 +22,18 @@ class MAPushLogger(BaseLogger):
         self.successful_episodes = 0
         self.cumulative_success_rate = 0.0
 
+    def per_step(self, data):
+        """Override per_step to call both base and custom training tracking."""
+        # Call base class per_step for reward tracking
+        super().per_step(data)
+
+        # Extract data for custom tracking
+        (obs, share_obs, rewards, dones, infos, available_actions,
+         values, actions, action_log_probs, rnn_states, rnn_states_critic) = data
+
+        # Call train_per_step to track success rate
+        self.train_per_step(rewards, dones, infos)
+
     def get_task_name(self):
         """Get the task name for logging."""
         return self.env_args.get("task", "cuboid_go1push_mid")
