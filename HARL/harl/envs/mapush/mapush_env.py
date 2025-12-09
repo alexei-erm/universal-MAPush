@@ -27,9 +27,21 @@ class MAPushEnv:
             sys.path.insert(0, str(mapush_root))
 
         # Import MAPush environment (lazy import to avoid unnecessary dependencies)
-        from mqe.envs.utils import make_mqe_env
         from argparse import Namespace
         from isaacgym import gymapi
+        from task.cuboid.config import Go1PushMidCfg
+        from mqe.envs.wrappers.go1_push_mid_wrapper import Go1PushMidWrapper
+        from mqe.utils.helpers import make_env
+        from mqe.envs.npc.go1_object import Go1Object
+
+        # Create configuration - MUST use task/cuboid/config.py for separate rewards!
+        self.cfg = Go1PushMidCfg()
+
+        # Override num_envs if specified
+        if 'n_threads' in args:
+            self.cfg.env.num_envs = args['n_threads']
+        if 'headless' in args:
+            self.cfg.env.headless = args['headless']
 
         # Create mock Isaac Gym args object
         gym_args = Namespace(
@@ -58,11 +70,9 @@ class MAPushEnv:
             record_video=False
         )
 
-        # Get task name from args or use default
-        task_name = args.get('task', 'go1push_mid')
-
-        # Create environment using MAPush's make_mqe_env function
-        self.env, self.cfg = make_mqe_env(task_name, gym_args)
+        # Create environment using the correct config
+        base_env, _ = make_env(Go1Object, self.cfg, gym_args)
+        self.env = Go1PushMidWrapper(base_env)
 
         # Get environment properties
         self.n_threads = self.cfg.env.num_envs

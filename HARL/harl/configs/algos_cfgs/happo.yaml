@@ -10,12 +10,12 @@ device:
   # whether to set CUDA deterministic
   cuda_deterministic: True
   # arg to torch.set_num_threads
-  torch_threads: 4
+  torch_threads: 500
 train:
   # number of parallel environments for training data collection
-  n_rollout_threads: 200
+  n_rollout_threads: 500
   # number of total training steps
-  num_env_steps: 30000000
+  num_env_steps: 150000000
   # number of steps per environment per training data collection
   episode_length: 200
   # logging interval
@@ -69,9 +69,9 @@ model:
   data_chunk_length: 10
   # optimizer parameters
   # actor learning rate
-  lr: 0.0005
+  lr: 0.005
   # critic learning rate
-  critic_lr: 0.0005
+  critic_lr: 0.005
   # eps in Adam
   opti_eps: 0.00001
   # weight_decay in Adam
@@ -91,9 +91,9 @@ algo:
   # clip parameter
   clip_param: 0.2
   # number of mini-batches per epoch for actor update
-  actor_num_mini_batch: 1
+  actor_num_mini_batch: 16
   # number of mini-batches per epoch for critic update
-  critic_num_mini_batch: 1
+  critic_num_mini_batch: 16
   # coefficient for entropy term in actor loss
   entropy_coef: 0.01
   # coefficient for value loss

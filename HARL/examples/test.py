@@ -120,11 +120,17 @@ def main():
     if args["mode"] == "calc":
         algo_args["render"]["use_calc_mode"] = True
         algo_args["render"]["use_render"] = False
-        print(f"Running in CALCULATOR mode with {algo_args['render']['calc_n_threads']} threads")
+        # Use calc_n_threads for calculator mode
+        calc_threads = unparsed_dict.get("calc_n_threads", algo_args["render"]["calc_n_threads"])
+        algo_args["train"]["n_rollout_threads"] = calc_threads
+        print(f"Running in CALCULATOR mode with {calc_threads} threads")
     elif args["mode"] == "render":
         algo_args["render"]["use_render"] = True
         algo_args["render"]["use_calc_mode"] = False
-        print("Running in RENDER mode")
+        # Use render_episodes for render mode
+        render_eps = unparsed_dict.get("render_episodes", algo_args["render"]["render_episodes"])
+        algo_args["render"]["render_episodes"] = render_eps
+        print(f"Running in RENDER mode ({render_eps} episodes)")
 
     # Import Isaac Gym for mapush/dexhands
     if args["env"] == "dexhands" or args["env"] == "mapush":

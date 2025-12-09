@@ -6,13 +6,21 @@ from harl.common.base_logger import BaseLogger
 class MAPushLogger(BaseLogger):
     """Logger for MAPush training."""
 
-    def __init__(self, args, algo_args, env_args, num_agents, writter, run_dir):
+    def __init__(self, args, algo_args, env_args, num_agents, writter, run_dir, env=None):
         """Initialize MAPush logger."""
         super().__init__(args, algo_args, env_args, num_agents, writter, run_dir)
+
+        # Store environment reference for accessing reward buffers
+        self.env = env
 
         # MAPush-specific metrics
         self.success_count = 0
         self.episode_count = 0
+
+        # Cumulative success tracking
+        self.total_episodes = 0
+        self.successful_episodes = 0
+        self.cumulative_success_rate = 0.0
 
     def get_task_name(self):
         """Get the task name for logging."""
@@ -70,45 +78,88 @@ class MAPushLogger(BaseLogger):
 
     def train_per_step(self, rewards, dones, infos):
         """Update per-step training metrics."""
-        # Track per-agent rewards if available
-        pass
+        # Track episodes for cumulative success rate
+        if dones[0].any():
+            for env_idx in range(len(infos)):
+                if dones[env_idx, 0]:  # Episode done for this environment
+                    self.total_episodes += 1
+                    # Check if successful (from info dict or finished_buf)
+                    if 'finished_buf' in infos[env_idx]:
+                        if infos[env_idx]['finished_buf']:
+                            self.successful_episodes += 1
+                    self.cumulative_success_rate = self.successful_episodes / max(1, self.total_episodes)
 
-    def train_log(self, actor_train_infos, critic_train_info, actor_buffer, critic_buffer):
-        """Log training metrics."""
-        # Get total steps
-        self.total_num_steps = actor_buffer.step * self.algo_args["train"]["n_rollout_threads"] * self.algo_args["train"]["episode_length"]
+    def log_train(self, actor_train_infos, critic_train_info):
+        """Log training metrics (called by base episode_log)."""
+        # Call parent implementation for actor/critic logging
+        super().log_train(actor_train_infos, critic_train_info)
 
-        # Log actor training info (if available)
-        if len(actor_train_infos) > 0 and actor_train_infos[0] is not None:
-            for agent_id in range(self.num_agents):
-                if actor_train_infos[agent_id] is not None:
-                    for key in actor_train_infos[agent_id]:
-                        if self.writter is not None:
-                            self.writter.add_scalar(
-                                f"agent{agent_id}/train_{key}",
-                                actor_train_infos[agent_id][key],
-                                self.total_num_steps
-                            )
+        # Now add our custom reward component logging
+        # (parent already logs actor/critic stuff)
 
-        # Log critic training info
-        if critic_train_info is not None:
-            for key in critic_train_info:
+        # Log cumulative success rate
+        if self.writter is not None:
+            self.writter.add_scalar(
+                "metrics/cumulative_success_rate",
+                self.cumulative_success_rate,
+                self.total_num_steps
+            )
+
+        # Log reward components from environment
+        if self.env is not None and hasattr(self.env, 'env') and hasattr(self.env.env, 'reward_buffer'):
+            reward_buffer = self.env.env.reward_buffer
+            step_count = max(1, reward_buffer.get('step_count', 1))
+
+            # List of all reward components to log (using actual keys from wrapper)
+            components = [
+                'push_reward',
+                'engagement_bonus',
+                'cooperation_bonus',
+                'directional_progress',
+                'reach_target_reward',
+                'exception_punishment',
+                'blocking_penalty',
+                'same_side_bonus',
+                'approach_to_box_reward',
+                'distance_to_target_reward',
+                'collision_punishment',
+                'ocb_reward',
+            ]
+
+            # Log each component
+            for component in components:
+                if component in reward_buffer:
+                    value = reward_buffer[component]
+                    # Convert tensor to float if needed
+                    if hasattr(value, 'item'):
+                        value = value.item()
+                    avg_value = float(value) / step_count
+                    if self.writter is not None:
+                        self.writter.add_scalar(
+                            f"rewards/{component}",
+                            avg_value,
+                            self.total_num_steps
+                        )
+
+            # Log instantaneous success rate
+            if hasattr(self.env.env, 'init_finished_buf'):
+                success_rate = self.env.env.init_finished_buf.float().mean().item()
                 if self.writter is not None:
                     self.writter.add_scalar(
-                        f"critic/train_{key}",
-                        critic_train_info[key],
+                        "metrics/success_rate",
+                        success_rate,
                         self.total_num_steps
                     )
 
-        # Log average episode reward from buffer
-        if hasattr(actor_buffer, 'rewards'):
-            avg_reward = actor_buffer.rewards.mean()
-            if self.writter is not None:
-                self.writter.add_scalar(
-                    "train_average_reward",
-                    avg_reward,
-                    self.total_num_steps
-                )
+            # Log distance to target
+            if hasattr(self.env.env, 'distance_to_target'):
+                avg_distance = self.env.env.distance_to_target.mean().item()
+                if self.writter is not None:
+                    self.writter.add_scalar(
+                        "metrics/distance_to_target",
+                        avg_distance,
+                        self.total_num_steps
+                    )
 
     def eval_init_all(self):
         """Initialize all evaluation metrics."""

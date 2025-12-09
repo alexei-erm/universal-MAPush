@@ -1,9 +1,11 @@
 """Base runner for on-policy algorithms."""
 
+import os
 import time
 import numpy as np
 import torch
 import setproctitle
+from pathlib import Path
 from harl.common.valuenorm import ValueNorm
 from harl.common.buffers.on_policy_actor_buffer import OnPolicyActorBuffer
 from harl.common.buffers.on_policy_critic_buffer_ep import OnPolicyCriticBufferEP
@@ -170,17 +172,36 @@ class OnPolicyBaseRunner:
             else:
                 self.value_normalizer = None
 
-            self.logger = LOGGER_REGISTRY[args["env"]](
-                args, algo_args, env_args, self.num_agents, self.writter, self.run_dir
-            )
-        if self.algo_args["train"]["model_dir"] is not None:  # restore model
-            self.restore()
+            # Only create logger in training mode (not calc or render)
+            if not use_calc_mode:
+                self.logger = LOGGER_REGISTRY[args["env"]](
+                    args, algo_args, env_args, self.num_agents, self.writter, self.run_dir, env=self.envs
+                )
+            else:
+                self.logger = None
+
+            # Track last saved checkpoint to avoid duplicate saves
+            self.last_checkpoint_milestone = 0
+
+        # Only restore model if it's a specific checkpoint (not when testing all checkpoints)
+        if self.algo_args["train"]["model_dir"] is not None:
+            # Check if model_dir points to a specific checkpoint or parent directory
+            model_path = Path(self.algo_args["train"]["model_dir"])
+            # If it has actor files, it's a specific checkpoint, so restore
+            if (model_path / "actor_agent0.pt").exists():
+                self.restore()
 
     def run(self):
-        """Run the training (or rendering) pipeline."""
+        """Run the training (or rendering/calculator) pipeline."""
         if self.algo_args["render"]["use_render"] is True:
             self.render()
             return
+
+        # Check if in calculator mode
+        if self.algo_args["render"].get("use_calc_mode", False):
+            self.calculate()
+            return
+
         print("start running")
         self.warmup()
 
@@ -271,6 +292,10 @@ class OnPolicyBaseRunner:
                     self.prep_rollout()
                     self.eval()
                 self.save()
+
+            # Save checkpoint every 10M steps
+            total_num_steps = episode * self.algo_args["train"]["episode_length"] * self.algo_args["train"]["n_rollout_threads"]
+            self.save_checkpoint(total_num_steps)
 
             self.after_update()
 
@@ -688,7 +713,7 @@ class OnPolicyBaseRunner:
                             eval_rnn_states[:, agent_id],
                             eval_masks[:, agent_id],
                             eval_available_actions[:, agent_id]
-                            if eval_available_actions[0] is not None
+                            if eval_available_actions is not None
                             else None,
                             deterministic=True,
                         )
@@ -703,12 +728,15 @@ class OnPolicyBaseRunner:
                         _,
                         eval_available_actions,
                     ) = self.envs.step(eval_actions)
-                    rewards += eval_rewards[0][0][0]
+                    # eval_rewards shape: [n_envs, n_agents, 1]
+                    # Sum rewards for first env across all agents
+                    rewards += eval_rewards[0].sum()
                     if self.manual_render:
                         self.envs.render()
                     if self.manual_delay:
                         time.sleep(0.1)
-                    if eval_dones[0][0]:
+                    # eval_dones shape: [n_envs, n_agents]
+                    if eval_dones[0, 0]:
                         print(f"total reward of this episode: {rewards}")
                         break
         if "smac" in self.args["env"]:  # replay for smac, no rendering
@@ -747,6 +775,51 @@ class OnPolicyBaseRunner:
                 str(self.save_dir) + "/value_normalizer" + ".pt",
             )
 
+    def save_checkpoint(self, total_num_steps):
+        """Save checkpoint at specific step intervals (10M, 20M, etc.)."""
+        checkpoint_interval = 10_000_000  # Save every 10M steps
+
+        # Calculate current milestone (e.g., 10M, 20M, 30M, etc.)
+        current_milestone = (total_num_steps // checkpoint_interval) * checkpoint_interval
+
+        # Only save if we've passed a new milestone and haven't saved it yet
+        if current_milestone > 0 and current_milestone > self.last_checkpoint_milestone:
+            checkpoint_name = f"{int(current_milestone / 1_000_000)}M"
+            checkpoint_dir = os.path.join(str(self.save_dir), checkpoint_name)
+
+            # Create checkpoint directory
+            os.makedirs(checkpoint_dir, exist_ok=True)
+
+            # Save actor models
+            for agent_id in range(self.num_agents):
+                policy_actor = self.actor[agent_id].actor
+                torch.save(
+                    policy_actor.state_dict(),
+                    os.path.join(checkpoint_dir, f"actor_agent{agent_id}.pt"),
+                )
+
+            # Save critic model
+            policy_critic = self.critic.critic
+            torch.save(
+                policy_critic.state_dict(),
+                os.path.join(checkpoint_dir, "critic_agent.pt")
+            )
+
+            # Save value normalizer if it exists
+            if self.value_normalizer is not None:
+                torch.save(
+                    self.value_normalizer.state_dict(),
+                    os.path.join(checkpoint_dir, "value_normalizer.pt"),
+                )
+
+            # Update last saved milestone
+            self.last_checkpoint_milestone = current_milestone
+
+            print(f"\n{'='*60}")
+            print(f"CHECKPOINT SAVED: {checkpoint_name} ({total_num_steps:,} steps)")
+            print(f"Location: {checkpoint_dir}")
+            print(f"{'='*60}\n")
+
     def restore(self):
         """Restore model parameters."""
         for agent_id in range(self.num_agents):
@@ -770,6 +843,206 @@ class OnPolicyBaseRunner:
                 )
                 self.value_normalizer.load_state_dict(value_normalizer_state_dict)
 
+    def calculate(self):
+        """Run calculator mode to evaluate model performance metrics.
+
+        This method runs the policy for multiple episodes without rendering,
+        collecting metrics like success rate, episode length, collision rate, etc.
+        """
+        print("Running calculator mode...")
+
+        # Reset environment
+        obs, share_obs, _ = self.envs.reset()
+
+        # Initialize RNN states per agent
+        n_threads = self.algo_args["train"]["n_rollout_threads"]
+        rnn_states_actor = np.zeros(
+            (
+                n_threads,
+                self.num_agents,
+                self.recurrent_n,
+                self.rnn_hidden_size,
+            ),
+            dtype=np.float32,
+        )
+        masks = np.ones(
+            (n_threads, self.num_agents, 1),
+            dtype=np.float32,
+        )
+
+        # Run until all episodes complete (up to max episode length)
+        max_episode_length = self.algo_args["train"]["episode_length"]
+        all_done = False
+        step = 0
+
+        while not all_done and step < max_episode_length:
+            actions_collector = []
+
+            # Get actions for all agents
+            # obs shape: [n_threads, n_agents, obs_dim]
+            for agent_id in range(self.num_agents):
+                action, temp_rnn_state = self.actor[agent_id].act(
+                    obs[:, agent_id],  # Extract obs for this agent: [n_threads, obs_dim]
+                    rnn_states_actor[:, agent_id],  # RNN state for this agent: [n_threads, recurrent_n, hidden_size]
+                    masks[:, agent_id],  # Mask for this agent: [n_threads, 1]
+                    deterministic=True,
+                )
+                rnn_states_actor[:, agent_id] = _t2n(temp_rnn_state)
+                actions_collector.append(_t2n(action))
+
+            # Transpose from (n_agents, n_threads, action_dim) to (n_threads, n_agents, action_dim)
+            actions_env = np.array(actions_collector).transpose(1, 0, 2)
+            obs, share_obs, rewards, dones, infos, _ = self.envs.step(actions_env)
+
+            # Update masks based on dones
+            # dones shape: [n_threads, n_agents]
+            masks = np.ones((n_threads, self.num_agents, 1), dtype=np.float32)
+            masks[dones == True] = 0.0
+
+            # Check if all environments are done
+            all_done = dones[:, 0].all()  # Check first agent of each env
+            step += 1
+
+        # Collect metrics from environment
+        if hasattr(self.envs, 'env') and hasattr(self.envs.env, 'init_finished_buf'):
+            # Success rate: percentage of environments where box reached target
+            success_rate = self.envs.env.init_finished_buf.float().mean().item() * 100
+
+            # Finished time: average episode length for successful episodes (in steps, convert to seconds)
+            if hasattr(self.envs.env, 'init_episode_length_buf'):
+                finished_episodes = self.envs.env.init_finished_buf
+                if finished_episodes.any():
+                    # Episode length is in steps, convert to seconds (dt * steps)
+                    dt = self.envs.env.dt if hasattr(self.envs.env, 'dt') else 0.02
+                    finished_time = (self.envs.env.init_episode_length_buf[finished_episodes].float().mean().item() * dt)
+                else:
+                    finished_time = 0.0
+            else:
+                finished_time = 0.0
+
+            # Collision degree: total collisions per episode (normalized by episode length)
+            if hasattr(self.envs.env, 'collision_degree_buf'):
+                # This is a cumulative counter - divide by episode length to get rate
+                avg_episode_length = self.envs.env.episode_length_buf.float().mean().item()
+                collision_degree = self.envs.env.collision_degree_buf.float().mean().item() / max(1, avg_episode_length)
+            else:
+                collision_degree = 0.0
+
+            # Collaboration degree: collaboration steps per episode (normalized by episode length)
+            if hasattr(self.envs.env, 'collaboration_degree_buf'):
+                # This is a cumulative counter - divide by episode length to get rate
+                avg_episode_length = self.envs.env.episode_length_buf.float().mean().item()
+                collaboration_degree = self.envs.env.collaboration_degree_buf.float().mean().item() / max(1, avg_episode_length)
+            else:
+                collaboration_degree = 0.0
+
+            metrics = {
+                'success_rate': success_rate,
+                'finished_time': finished_time,
+                'collision_degree': collision_degree,
+                'collaboration_degree': collaboration_degree,
+                'n_envs': n_threads,
+                'total_steps': step
+            }
+        else:
+            print("Warning: Environment does not have calculator mode buffers.")
+            metrics = {
+                'success_rate': 0.0,
+                'finished_time': 0.0,
+                'collision_degree': 0.0,
+                'collaboration_degree': 0.0,
+                'n_envs': n_threads,
+                'total_steps': step
+            }
+
+        # Print results
+        print("\n" + "="*80)
+        print(f"Calculator Mode Results ({n_threads} environments)")
+        print("="*80)
+        print(f"Success Rate:         {metrics['success_rate']:.2f}%")
+        print(f"Finished Time:        {metrics['finished_time']:.2f}s")
+        print(f"Collision Degree:     {metrics['collision_degree']:.4f}")
+        print(f"Collaboration Degree: {metrics['collaboration_degree']:.4f}")
+        print("="*80 + "\n")
+
+        return metrics
+
+    def evaluate_all_checkpoints(self):
+        """Evaluate all checkpoints in the model directory.
+
+        Finds all checkpoint directories (10M, 20M, etc.) and evaluates each one,
+        saving results to a single file.
+        """
+        import os
+        from pathlib import Path
+
+        model_dir = Path(self.algo_args["train"]["model_dir"])
+
+        # Find all checkpoint directories
+        checkpoint_dirs = []
+        if model_dir.exists() and model_dir.is_dir():
+            for item in model_dir.iterdir():
+                if item.is_dir() and (item.name.endswith('M') or item.name.isdigit()):
+                    checkpoint_dirs.append(item)
+
+        # Sort by numeric value (extract number from "10M", "20M", etc.)
+        def get_checkpoint_number(path):
+            name = path.name
+            if name.endswith('M'):
+                return int(name[:-1])
+            elif name.isdigit():
+                return int(name)
+            return 0
+
+        checkpoint_dirs = sorted(checkpoint_dirs, key=get_checkpoint_number)
+
+        if not checkpoint_dirs:
+            print(f"No checkpoint directories found in {model_dir}")
+            return
+
+        print(f"\nFound {len(checkpoint_dirs)} checkpoints to evaluate")
+        print(f"Checkpoint directories: {[d.name for d in checkpoint_dirs]}\n")
+
+        # Results storage
+        all_results = []
+
+        # Evaluate each checkpoint
+        for checkpoint_dir in checkpoint_dirs:
+            print(f"\nEvaluating checkpoint: {checkpoint_dir.name}")
+            print("-" * 80)
+
+            # Update model_dir to point to this checkpoint
+            self.algo_args["train"]["model_dir"] = str(checkpoint_dir)
+
+            # Restore model
+            self.restore()
+
+            # Run calculator mode
+            metrics = self.calculate()
+            metrics['checkpoint'] = checkpoint_dir.name
+            all_results.append(metrics)
+
+        # Save results to file
+        results_file = model_dir / "calc_results_all_checkpoints.txt"
+        with open(results_file, 'w') as f:
+            f.write("="*100 + "\n")
+            f.write("Calculator Mode Results - All Checkpoints\n")
+            f.write("="*100 + "\n\n")
+            f.write(f"{'Checkpoint':<15} {'Success Rate':<15} {'Finished Time':<15} {'Collision':<15} {'Collaboration':<15}\n")
+            f.write("-"*100 + "\n")
+
+            for result in all_results:
+                f.write(f"{result['checkpoint']:<15} "
+                       f"{result['success_rate']:>13.2f}%  "
+                       f"{result['finished_time']:>13.2f}s  "
+                       f"{result['collision_degree']:>13.4f}  "
+                       f"{result['collaboration_degree']:>13.4f}\n")
+
+            f.write("="*100 + "\n")
+
+        print(f"\n\nResults saved to: {results_file}")
+        print("\nAll checkpoints evaluated!")
+
     def close(self):
         """Close environment, writter, and logger."""
         if self.algo_args["render"]["use_render"]:
@@ -778,6 +1051,8 @@ class OnPolicyBaseRunner:
             self.envs.close()
             if self.algo_args["eval"]["use_eval"] and self.eval_envs is not self.envs:
                 self.eval_envs.close()
-            self.writter.export_scalars_to_json(str(self.log_dir + "/summary.json"))
-            self.writter.close()
-            self.logger.close()
+            if self.writter is not None:
+                self.writter.export_scalars_to_json(str(self.log_dir + "/summary.json"))
+                self.writter.close()
+            if self.logger is not None:
+                self.logger.close()

@@ -226,11 +226,11 @@ def make_render_env(env_name, seed, env_args):
     elif env_name == "mapush":
         from harl.envs.mapush.mapush_env import MAPushEnv
 
-        env = MAPushEnv({"n_threads": 64, "headless": False, **env_args})
+        env = MAPushEnv({"n_threads": 1, "headless": False, **env_args})
         manual_render = False  # mapush renders automatically
         manual_expand_dims = False  # mapush uses parallel envs
         manual_delay = False
-        env_num = 64
+        env_num = 1
     else:
         print("Can not support the " + env_name + "environment.")
         raise NotImplementedError
